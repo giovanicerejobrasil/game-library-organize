@@ -1,0 +1,110 @@
+/* resources/css/theme.css */
+:root {
+    /* Brand Colors (User customizable via inline styles or dynamic CSS) */
+    --brand-primary: #182075;
+    --brand-secondary: #751919;
+
+    /* Surface & Background Colors (Dark Mode Default) */
+    --bg-main: #0f0f0f;
+    --bg-card: #1a1a24;
+    --border-color: #2a2a3b;
+    --text-main: #fafafa;
+    --text-muted: #94a3b8;
+
+    /* Semantic Game Status Colors */
+    --status-finished: #2e7d32;
+    --status-playing: #0288d1;
+    --status-dropped: #c62828;
+    --status-backlog: #f57f17;
+    --star-color: #ffb800;
+
+    /* Shadows & Glows */
+    --glow-retro: 0 0 15px rgba(24, 32, 117, 0.4);
+    --light-glow-retro: 0 0 15px rgba(151, 222, 255, 0.842);
+    --elevation-low: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --elevation-high: 0 10px 30px rgba(0, 0, 0, 0.6);
+
+    /* Border Radii */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 16px;
+}
+
+[data-theme="light"] {
+    --bg-main: #fafafa;
+    --bg-card: #ffffff;
+    --border-color: #e0e0e0;
+    --text-main: #0f0f0f;
+    --text-muted: #64748b;
+    --glow-retro: 0 0 15px rgba(24, 32, 117, 0.15);
+    --elevation-low: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --elevation-high: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Base Body Application */
+body {
+    background-color: var(--bg-main);
+    color: var(--text-main);
+    font-family: var(--font-body), "Roboto", sans-serif;
+    min-height: 100vh;
+    transition:
+        background-color 0.25s ease,
+        color 0.25s ease;
+}
+
+/* Retro Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--brand-primary);
+}
+
+/* Theme Switcher Icon Visibility */
+.theme-icon-moon {
+    display: block;
+}
+
+.theme-icon-sun {
+    display: none;
+}
+
+html[data-theme="light"] .theme-icon-moon,
+[data-theme="light"] .theme-icon-moon {
+    display: none !important;
+}
+
+html[data-theme="light"] .theme-icon-sun,
+[data-theme="light"] .theme-icon-sun {
+    display: block !important;
+}
+
+/* Main Brand Logo Theme Switching */
+.logo-dark-mode {
+    display: block;
+}
+
+.logo-light-mode {
+    display: none;
+}
+
+html[data-theme="light"] .logo-dark-mode,
+[data-theme="light"] .logo-dark-mode {
+    display: none !important;
+}
+
+html[data-theme="light"] .logo-light-mode,
+[data-theme="light"] .logo-light-mode {
+    display: block !important;
+}

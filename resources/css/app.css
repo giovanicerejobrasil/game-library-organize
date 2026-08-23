@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,400..700;1,400..700&family=Roboto:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Ubuntu:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&display=swap');
+@import 'tailwindcss';
+@import './theme.css';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@theme {
+    /* Typography per Design System 2.2 */
+    --font-display: 'Ubuntu', ui-sans-serif, system-ui, sans-serif;
+    --font-ui: 'Open Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Roboto', ui-sans-serif, system-ui, sans-serif;
+
+    /* Color Tokens Mapped to CSS Variables */
+    --color-brand-primary: var(--brand-primary);
+    --color-brand-secondary: var(--brand-secondary);
+    --color-bg-main: var(--bg-main);
+    --color-bg-card: var(--bg-card);
+    --color-border-color: var(--border-color);
+    --color-text-main: var(--text-main);
+    --color-text-muted: var(--text-muted);
+
+    /* Game Status Tokens */
+    --color-status-finished: var(--status-finished);
+    --color-status-playing: var(--status-playing);
+    --color-status-dropped: var(--status-dropped);
+    --color-status-backlog: var(--status-backlog);
+    --color-star-color: var(--star-color);
+
+    /* Spacing Base (8px unit) */
+    --spacing-space4: 4px;
+    --spacing-space8: 8px;
+    --spacing-space12: 12px;
+    --spacing-space16: 16px;
+    --spacing-space24: 24px;
+    --spacing-space32: 32px;
+
+    /* Shadows & Glows */
+    --shadow-retro-glow: var(--glow-retro);
+    --shadow-elevation-low: var(--elevation-low);
+    --shadow-elevation-high: var(--elevation-high);
+
+    /* Border Radius */
+    --radius-retro-sm: var(--radius-sm);
+    --radius-retro-md: var(--radius-md);
+    --radius-retro-lg: var(--radius-lg);
+}
+
+/* Utilities */
+.aspect-portrait {
+    aspect-ratio: 2 / 3;
+}
+
+.aspect-video-trailer {
+    aspect-ratio: 16 / 9;
+}
+
+.card-retro-hover {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-retro-hover:hover {
+    transform: scale(1.03);
+    box-shadow: var(--glow-retro);
+}
