@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="dark">
 
-<x-head title="Acessar Conta" />
+<x-head title="{{ $data->title }}" />
 
 <body class="antialiased min-h-screen flex flex-col font-sans bg-[var(--bg-main)] text-[var(--text-main)] selection:bg-[var(--brand-primary)] selection:text-white transition-colors duration-300">
     <!-- Header Component -->
@@ -46,7 +46,7 @@
                 @endif
 
                 <!-- Login Form -->
-                <form action="{{ route('login.store') }}" method="POST" class="space-y-5">
+                <form action="{{ route('attemptLogin') }}" method="POST" class="space-y-5">
                     @csrf
 
                     <!-- Email Field -->
