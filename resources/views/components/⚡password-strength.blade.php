@@ -10,8 +10,6 @@ new class extends Component
 
     public string $segmentColor = 'bg-[var(--border-color)]';
 
-    public string $strengthLabel = '';
-
     public function updatedPassword(): void
     {
         $this->score = 0;
@@ -37,7 +35,6 @@ new class extends Component
         }
 
         $this->segmentColor = $this->verifyColor();
-        $this->strengthLabel = $this->verifyLabel();
     }
 
     private function verifyColor(): string
@@ -49,16 +46,6 @@ new class extends Component
             default => 'bg-[var(--border-color)]',
         };
     }
-
-    private function verifyLabel(): string
-    {
-        return match (true) {
-            $this->score >= 1 && $this->score <= 2 => 'Fraca',
-            $this->score >= 3 && $this->score <= 4 => 'Média',
-            $this->score >= 5 => 'Forte',
-            default => '',
-        };
-    }
 };
 ?>
 
@@ -68,19 +55,6 @@ new class extends Component
             Senha
         </label>
         <div class="flex items-center gap-2">
-            @if ($this->strengthLabel)
-                <span class="text-[11px] font-semibold font-['Open_Sans'] transition-colors duration-200
-                    @if ($this->score <= 2)
-                        text-[var(--status-dropped)]
-                    @elseif ($this->score <= 4)
-                        text-[var(--status-backlog)]
-                    @else
-                        text-[var(--status-finished)]
-                    @endif
-                ">
-                    {{ $this->strengthLabel }}
-                </span>
-            @endif
             <span class="text-[11px] text-[var(--text-muted)] font-['Roboto']">
                 Mínimo de 8 caracteres
             </span>
@@ -132,14 +106,15 @@ new class extends Component
                     @else
                         bg-[var(--border-color)] opacity-60
                     @endif
-                "></div>
-            @endfor
+                ">
         </div>
-
-        <!-- Rótulos Inferiores -->
-        <div class="flex justify-between text-[10px] text-[var(--text-muted)] font-['Roboto']">
-            <span>Muito Fraco</span>
-            <span>Muito Forte</span>
-        </div>
+        @endfor
     </div>
+
+    <!-- Rótulos Inferiores -->
+    <div class="flex justify-between text-[10px] text-[var(--text-muted)] font-['Roboto']">
+        <span>Muito Fraco</span>
+        <span>Muito Forte</span>
+    </div>
+</div>
 </div>
