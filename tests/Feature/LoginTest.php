@@ -55,10 +55,10 @@ test('users cannot authenticate with invalid password', function () {
     $this->assertGuest();
 });
 
-test('validation fails when email is missing or password is too short', function () {
+test('validation fails when fields are invalid or missing', function () {
     $response = $this->post(route('attemptLogin'), [
         'email' => 'invalid-email',
-        'password' => 'short',
+        'password' => '',
     ]);
 
     $response->assertSessionHasErrors(['email', 'password']);

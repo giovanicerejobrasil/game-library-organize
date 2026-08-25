@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             User::factory()->create([
                 'name' => 'Giovani Cerejo Brasil',
                 'email' => 'giovani@example.com',
+                'password' => '123456789',
                 'theme' => 'dark',
                 'brand_primary' => '#182075',
                 'brand_secondary' => '#751919',

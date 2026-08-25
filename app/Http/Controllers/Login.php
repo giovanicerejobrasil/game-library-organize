@@ -22,22 +22,21 @@ class Login extends Controller
 
     public function attemptLogin(Request $request): RedirectResponse
     {
-        $credentials = $request->validate([
+        $request->validate([
             'email' => ['required', 'email'],
-            'password' => ['required', 'min:10', 'string'],
+            'password' => ['required', 'string'],
             'remember' => ['nullable'],
         ], [
             'email.required' => 'O e-mail é obrigatório',
             'email.email' => 'O e-mail deve ser válido',
             'password.required' => 'A senha é obrigatória',
-            'password.min' => 'A senha deve ter pelo menos 10 caracteres',
         ]);
 
         $remember = $request->boolean('remember');
 
         $success = $this->servicesLogin->execute(
-            email: $credentials['email'],
-            password: $credentials['password'],
+            email: $request->string('email')->value(),
+            password: $request->string('password')->value(),
             remember: $remember
         );
 
