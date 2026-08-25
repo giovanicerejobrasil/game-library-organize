@@ -14,6 +14,9 @@ class Login extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        /** @var array<string, mixed> $array */
+        $array = parent::toArray($request);
+
+        return $array;
     }
 }

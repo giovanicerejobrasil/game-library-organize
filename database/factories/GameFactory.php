@@ -22,7 +22,7 @@ class GameFactory extends Factory
      */
     public function definition(): array
     {
-        $title = fake()->unique()->words(rand(2, 4), true);
+        $title = fake()->unique()->sentence(rand(2, 4));
 
         return [
             'title' => ucwords($title),
