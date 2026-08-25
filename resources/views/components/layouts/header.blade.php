@@ -66,8 +66,8 @@ $iconIcoUrl = asset('images/logo/icon.ico') . '?v=' . (@filemtime(public_path('i
             </div>
             @else
             <div class="flex items-center gap-2">
-                <a href="#" class="px-3 py-1.5 text-sm font-medium text-[var(--text-main)] hover:text-[var(--brand-primary)] transition-colors">Entrar</a>
-                <a href="#" class="px-3 py-1.5 text-sm font-medium bg-[var(--brand-primary)] text-white rounded-md hover:opacity-90 transition-opacity">Cadastrar</a>
+                <a href="{{ route('login') }}" class="px-3 py-1.5 text-sm font-medium text-[var(--text-main)] hover:text-[var(--brand-primary)] transition-colors">Entrar</a>
+                <a href="{{ route('register') }}" class="px-3 py-1.5 text-sm font-medium bg-[var(--brand-primary)] text-white rounded-md hover:opacity-90 transition-opacity">Cadastrar</a>
             </div>
             @endauth
             @endif
