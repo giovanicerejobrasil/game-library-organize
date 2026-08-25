@@ -46,7 +46,7 @@
                 @endif
 
                 <!-- Register Form -->
-                <form action="{{ route('register') }}" method="POST" class="space-y-4">
+                <form action="{{ route('attemptSignUp') }}" method="POST" class="space-y-4">
                     @csrf
 
                     <!-- Name Field -->
