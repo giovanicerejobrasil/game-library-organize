@@ -7,10 +7,10 @@
     <!-- Header Component (App Variant with icon logo) -->
     <x-header variant="app" :logoVariant="'icon'">
         @if (isset($nav))
-            <x-slot:nav>{{ $nav }}</x-slot:nav>
+        <x-slot:nav>{{ $nav }}</x-slot:nav>
         @endif
         @if (isset($actions))
-            <x-slot:actions>{{ $actions }}</x-slot:actions>
+        <x-slot:actions>{{ $actions }}</x-slot:actions>
         @endif
     </x-header>
 
@@ -25,4 +25,5 @@
 
     @livewireScripts
 </body>
+
 </html>

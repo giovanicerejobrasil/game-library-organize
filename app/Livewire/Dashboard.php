@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Livewire;
 
 use App\Enums\GameStatus;
-use App\Models\Game;
 use App\Services\Dashboard\DashboardService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -34,24 +33,15 @@ class Dashboard extends Component
 
     public string $viewMode = 'grid';
 
-    // Estado do Modal de Edição Rápida
-    public bool $showEditModal = false;
+    public ?int $selectedGameId = null;
 
-    public ?int $editingGameId = null;
-
-    public string $editingGameTitle = '';
-
-    public string $editingCoverImage = '';
-
-    public string $editStatus = 'backlog';
-
-    public float $editHours = 0.0;
-
-    public float $editRating = 0.0;
-
-    public string $editReview = '';
-
-    public string $feedbackMessage = '';
+    /**
+     * Seleciona um jogo para visualização
+     */
+    public function showGameModal(int $gameId): void
+    {
+        $this->selectedGameId = $gameId;
+    }
 
     /**
      * Reseta a paginação ao atualizar filtros de busca
@@ -142,97 +132,6 @@ class Dashboard extends Component
         return $count;
     }
 
-    /**
-     * Abre o modal de edição rápida de progresso do jogo
-     */
-    public function openEditModal(int $gameId): void
-    {
-        $userId = (int) Auth::id();
-        $game = Game::with(['userGames' => fn ($q) => $q->where('user_id', $userId)])->find($gameId);
-
-        if (! $game) {
-            return;
-        }
-
-        $userGame = $game->userGames->first();
-
-        $this->editingGameId = $game->id;
-        $this->editingGameTitle = $game->title;
-        $this->editingCoverImage = $game->cover_image ?? '';
-        $this->editStatus = $userGame?->status?->value ?? GameStatus::Backlog->value;
-        $this->editHours = $userGame ? (float) $userGame->hours_played : 0.0;
-        $this->editRating = $userGame ? (float) ($userGame->rating ?? 0.0) : 0.0;
-        $this->editReview = $userGame?->review ?? '';
-        $this->feedbackMessage = '';
-        $this->showEditModal = true;
-    }
-
-    /**
-     * Fecha o modal de edição
-     */
-    public function closeEditModal(): void
-    {
-        $this->showEditModal = false;
-        $this->editingGameId = null;
-        $this->feedbackMessage = '';
-    }
-
-    /**
-     * Salva as alterações de progresso do jogo
-     */
-    public function saveGameProgress(DashboardService $dashboardService): void
-    {
-        if (! $this->editingGameId) {
-            return;
-        }
-
-        $userId = (int) Auth::id();
-
-        $dashboardService->updateGameProgress(
-            userId: $userId,
-            gameId: $this->editingGameId,
-            data: [
-                'status' => $this->editStatus,
-                'hours_played' => $this->editHours,
-                'rating' => $this->editRating > 0 ? $this->editRating : null,
-                'review' => $this->editReview,
-            ]
-        );
-
-        $this->feedbackMessage = 'Progresso atualizado com sucesso!';
-        $this->dispatch('game-progress-updated');
-
-        $this->closeEditModal();
-    }
-
-    /**
-     * Atualização rápida de status diretamente pelo card
-     */
-    public function quickSetStatus(int $gameId, string $status, DashboardService $dashboardService): void
-    {
-        $userId = (int) Auth::id();
-        $game = Game::with(['userGames' => fn ($q) => $q->where('user_id', $userId)])->find($gameId);
-
-        if (! $game) {
-            return;
-        }
-
-        $userGame = $game->userGames->first();
-
-        $dashboardService->updateGameProgress(
-            userId: $userId,
-            gameId: $gameId,
-            data: [
-                'status' => $status,
-                'hours_played' => $userGame ? (float) $userGame->hours_played : 0.0,
-                'rating' => $userGame?->rating,
-                'review' => $userGame?->review,
-            ]
-        );
-
-        $this->dispatch('game-progress-updated');
-    }
-
     public function render(DashboardService $dashboardService): View
     {
         $userId = (int) Auth::id();
@@ -263,7 +162,7 @@ class Dashboard extends Component
             'availableGenres' => $availableGenres,
             'statuses' => GameStatus::cases(),
         ])->layout('layouts.app', [
-            'title' => 'Dashboard — Minha Biblioteca',
+            'title' => 'Minha Biblioteca',
         ]);
     }
 }
