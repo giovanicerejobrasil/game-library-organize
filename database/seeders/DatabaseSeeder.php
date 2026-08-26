@@ -17,11 +17,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([
-            PlatformSeeder::class,
-            GameLibrarySeeder::class,
-        ]);
-
         if (User::count() === 0) {
             User::factory()->create([
                 'name' => 'Giovani Cerejo Brasil',
@@ -32,5 +27,12 @@ class DatabaseSeeder extends Seeder
                 'brand_secondary' => '#751919',
             ]);
         }
+
+        $this->call([
+            PlatformSeeder::class,
+            GameLibrarySeeder::class,
+            GameSeeder::class,
+            UserGameSeeder::class,
+        ]);
     }
 }
