@@ -126,13 +126,14 @@ class DashboardService
         // Filtro por Gênero
         if (! empty($filters['genre'])) {
             $genre = trim((string) $filters['genre']);
-            $query->where(function (Builder $q) use ($genre) {
+            $genreLower = mb_strtolower($genre);
+            $query->where(function (Builder $q) use ($genre, $genreLower) {
                 $q->whereJsonContains('genre', $genre)
-                    ->orWhere('genre', 'like', "%{$genre}%");
+                    ->orWhereRaw('LOWER(genre) LIKE ?', ["%{$genreLower}%"]);
             });
         }
 
-        // Busca Textual com Elasticsearch e Fallback SQL
+        // Busca Textual com Elasticsearch e Fallback SQL (Case-Insensitive)
         $search = trim((string) ($filters['search'] ?? ''));
         if ($search !== '') {
             $elasticIds = [];
@@ -145,12 +146,13 @@ class DashboardService
             if (! empty($elasticIds)) {
                 $query->whereIn('games.id', $elasticIds);
             } else {
-                $term = "%{$search}%";
+                $searchLower = mb_strtolower($search);
+                $term = "%{$searchLower}%";
                 $query->where(function (Builder $q) use ($term) {
-                    $q->where('title', 'like', $term)
-                        ->orWhere('developer', 'like', $term)
-                        ->orWhere('publisher', 'like', $term)
-                        ->orWhere('franchise_name', 'like', $term);
+                    $q->whereRaw('LOWER(title) LIKE ?', [$term])
+                        ->orWhereRaw('LOWER(developer) LIKE ?', [$term])
+                        ->orWhereRaw('LOWER(publisher) LIKE ?', [$term])
+                        ->orWhereRaw('LOWER(franchise_name) LIKE ?', [$term]);
                 });
             }
         }

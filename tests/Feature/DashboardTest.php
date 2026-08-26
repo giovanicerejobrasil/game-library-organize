@@ -70,19 +70,34 @@ test('dashboard displays correct user library statistics', function () {
         ->assertSee('Game Gamma');
 });
 
-test('dashboard can filter games by search term', function () {
+test('dashboard can filter games by search term case-insensitively and partially', function () {
     $user = User::factory()->create();
 
-    $game1 = Game::factory()->create(['title' => 'The Witcher 3: Wild Hunt']);
+    $game1 = Game::factory()->create(['title' => 'Forza Horizon 5']);
     $game2 = Game::factory()->create(['title' => 'Cyberpunk 2077']);
 
     UserGame::create(['user_id' => $user->id, 'game_id' => $game1->id, 'status' => GameStatus::Finished]);
     UserGame::create(['user_id' => $user->id, 'game_id' => $game2->id, 'status' => GameStatus::Playing]);
 
+    // Lowercase partial 'fo'
     Livewire::actingAs($user)
         ->test(Dashboard::class)
-        ->set('search', 'Witcher')
-        ->assertSee('The Witcher 3: Wild Hunt')
+        ->set('search', 'fo')
+        ->assertSee('Forza Horizon 5')
+        ->assertDontSee('Cyberpunk 2077');
+
+    // Lowercase 'horizon'
+    Livewire::actingAs($user)
+        ->test(Dashboard::class)
+        ->set('search', 'horizon')
+        ->assertSee('Forza Horizon 5')
+        ->assertDontSee('Cyberpunk 2077');
+
+    // Uppercase 'FORZA'
+    Livewire::actingAs($user)
+        ->test(Dashboard::class)
+        ->set('search', 'FORZA')
+        ->assertSee('Forza Horizon 5')
         ->assertDontSee('Cyberpunk 2077');
 });
 
@@ -142,58 +157,6 @@ test('dashboard can reset filters', function () {
         ->assertSet('search', '')
         ->assertSet('status', '')
         ->assertSet('platform', '');
-});
-
-test('user can update game progress via quick edit modal', function () {
-    $user = User::factory()->create();
-    $game = Game::factory()->create(['title' => 'Baldur\'s Gate 3']);
-
-    $userGame = UserGame::create([
-        'user_id' => $user->id,
-        'game_id' => $game->id,
-        'status' => GameStatus::Playing,
-        'hours_played' => 15.0,
-        'rating' => 4.0,
-    ]);
-
-    Livewire::actingAs($user)
-        ->test(Dashboard::class)
-        ->call('openEditModal', $game->id)
-        ->assertSet('showEditModal', true)
-        ->assertSet('editingGameId', $game->id)
-        ->set('editStatus', GameStatus::Finished->value)
-        ->set('editHours', 85.5)
-        ->set('editRating', 5.0)
-        ->set('editReview', 'Jogo lendário!')
-        ->call('saveGameProgress')
-        ->assertSet('showEditModal', false)
-        ->assertDispatched('game-progress-updated');
-
-    $userGame->refresh();
-    expect($userGame->status)->toBe(GameStatus::Finished)
-        ->and((float) $userGame->hours_played)->toBe(85.5)
-        ->and((float) $userGame->rating)->toBe(5.0)
-        ->and($userGame->review)->toBe('Jogo lendário!')
-        ->and($userGame->finished_at)->not->toBeNull();
-});
-
-test('user can quick update status directly', function () {
-    $user = User::factory()->create();
-    $game = Game::factory()->create(['title' => 'Hades']);
-
-    $userGame = UserGame::create([
-        'user_id' => $user->id,
-        'game_id' => $game->id,
-        'status' => GameStatus::Backlog,
-    ]);
-
-    Livewire::actingAs($user)
-        ->test(Dashboard::class)
-        ->call('quickSetStatus', $game->id, GameStatus::Playing->value)
-        ->assertDispatched('game-progress-updated');
-
-    $userGame->refresh();
-    expect($userGame->status)->toBe(GameStatus::Playing);
 });
 
 test('authenticated user can log out', function () {

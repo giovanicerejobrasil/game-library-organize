@@ -212,16 +212,16 @@ class GameSearchService
         if ($queryText !== '') {
             $must[] = [
                 'multi_match' => [
-                    'query' => $queryText,
+                    'query' => mb_strtolower($queryText),
                     'fields' => [
                         'title^4',
-                        'title.autocomplete^2',
+                        'title.autocomplete^3',
                         'franchise_name^3',
                         'developer^2',
                         'publisher^2',
                         'synopsis',
                     ],
-                    'type' => 'best_fields',
+                    'type' => 'bool_prefix',
                     'fuzziness' => 'AUTO',
                 ],
             ];
