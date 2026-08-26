@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="{{ auth()->user()?->theme?->value ?? 'dark' }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" data-theme="{{ auth()->user()?->theme?->value ?? 'dark' }}" style="--brand-primary: {{ auth()->user()?->brand_primary ?? '#182075' }}; --brand-secondary: {{ auth()->user()?->brand_secondary ?? '#751919' }};">
 
 <x-head :title="$title ?? null" :includeLivewire="true" />
 

@@ -22,7 +22,7 @@ test('users can authenticate using the login screen', function () {
         'password' => 'password123',
     ]);
 
-    $response->assertRedirect(route('home'));
+    $response->assertRedirect(route('dashboard'));
     $this->assertAuthenticatedAs($user);
 });
 
@@ -37,7 +37,7 @@ test('users can authenticate with remember me enabled', function () {
         'remember' => 'on',
     ]);
 
-    $response->assertRedirect(route('home'));
+    $response->assertRedirect(route('dashboard'));
     $this->assertAuthenticatedAs($user);
 });
 

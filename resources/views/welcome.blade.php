@@ -28,7 +28,7 @@
             </p>
 
             <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
-                <a href="{{ route('home') }}" class="px-6 py-3 text-base font-semibold rounded-[var(--radius-md)] bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--brand-primary)] hover:shadow-[var(--glow-retro)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
+                <a href="{{ route('login') }}" class="px-6 py-3 text-base font-semibold rounded-[var(--radius-md)] bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--brand-primary)] hover:shadow-[var(--glow-retro)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer">
                     Adicionar Jogos
                 </a>
             </div>

@@ -58,10 +58,37 @@ $iconIcoUrl = asset('images/logo/icon.ico') . '?v=' . (@filemtime(public_path('i
             </a>
             @elseif ($variant === 'app')
             @auth
-            <div class="flex items-center gap-3 border-l border-[var(--border-color)] pl-4">
-                <span class="text-sm font-medium text-[var(--text-main)] hidden md:inline">{{ auth()->user()->name }}</span>
-                <div class="w-8 h-8 rounded-full bg-[var(--brand-primary)] text-white font-bold text-xs flex items-center justify-center shadow-sm">
-                    {{ auth()->user()->initials() }}
+            <div class="flex items-center gap-3 border-l border-[var(--border-color)] pl-4" x-data="{ open: false }">
+                <div class="relative">
+                    <button @click="open = !open" @click.away="open = false" type="button" class="flex items-center gap-2.5 hover:opacity-80 transition-opacity focus:outline-none cursor-pointer">
+                        <span class="text-sm font-medium text-[var(--text-main)] hidden md:inline font-['Open_Sans']">{{ auth()->user()->name }}</span>
+                        <div class="w-8 h-8 rounded-full bg-[var(--brand-primary)] text-white font-bold text-xs flex items-center justify-center shadow-sm">
+                            {{ auth()->user()->initials() }}
+                        </div>
+                    </button>
+
+                    <!-- Dropdown Menu -->
+                    <div x-show="open" x-cloak class="absolute right-0 mt-2 w-48 bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[var(--radius-md)] shadow-[var(--elevation-high)] py-1.5 z-50 text-xs font-['Open_Sans']">
+                        <div class="px-3.5 py-2 border-b border-[var(--border-color)]">
+                            <p class="font-semibold text-[var(--text-main)] truncate">{{ auth()->user()->name }}</p>
+                            <p class="text-[var(--text-muted)] truncate">{{ auth()->user()->email }}</p>
+                        </div>
+                        <a href="{{ route('dashboard') }}" class="flex items-center gap-2 px-3.5 py-2 text-[var(--text-main)] hover:bg-[var(--border-color)]/30 transition-colors">
+                            <svg class="w-4 h-4 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                            </svg>
+                            Minha Biblioteca
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="w-full text-left flex items-center gap-2 px-3.5 py-2 text-[var(--status-dropped)] hover:bg-[var(--border-color)]/30 transition-colors cursor-pointer">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                Sair da Conta
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
             @else
