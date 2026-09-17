@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Login;
 use App\Http\Controllers\Logout;
 use App\Http\Controllers\SignUp;
+use App\Livewire\AddGame;
 use App\Livewire\Dashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -16,5 +17,6 @@ Route::post('/attemptsignup', [SignUp::class, 'attemptSignUp'])->name('attemptSi
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
+    Route::get('/jogos/adicionar', AddGame::class)->name('games.create');
     Route::post('/logout', [Logout::class, 'logout'])->name('logout');
 });

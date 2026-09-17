@@ -1,4 +1,15 @@
 <div class="space-y-8 mt-10 pb-12">
+    @if (session()->has('status'))
+    <div class="p-4 rounded-[var(--radius-md)] bg-[var(--status-finished)]/15 border border-[var(--status-finished)]/40 text-[var(--text-main)] flex items-center justify-between gap-3 text-sm font-['Roboto'] shadow-sm">
+        <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-[var(--status-finished)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{{ session('status') }}</span>
+        </div>
+    </div>
+    @endif
+
     <!-- Top Greeting & Quick Actions Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[var(--border-color)] pb-6">
         <div>
@@ -12,9 +23,12 @@
 
         <div>
             <a
-                href="{{ route('dashboard') }}"
-                class="px-4 py-2 text-xs sm:text-sm font-semibold rounded-[var(--radius-md)] bg-[var(--brand-primary)] text-white cursor-pointer hover:opacity-90 transition-all font-['Open_Sans'] shadow-md">
-                Adicionar Jogo
+                href="{{ route('games.create') }}"
+                class="px-4 flex items-center py-2 text-xs sm:text-sm font-semibold rounded-[var(--radius-md)] bg-[var(--brand-primary)] text-white cursor-pointer hover:opacity-90 transition-all font-['Open_Sans'] shadow-md">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                <span>&nbsp;Adicionar Jogo</span>
             </a>
         </div>
     </div>
