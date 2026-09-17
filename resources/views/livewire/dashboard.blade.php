@@ -433,7 +433,10 @@
                     loading="lazy"
                     decoding="async"
                     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80';"
-                    class="relative z-10 w-full h-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-110" />
+                    class="w-full h-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-110" />
+
+                <!-- Gradient Overlay for Seamless Transparency Transition -->
+                <div class="absolute inset-0 z-10 bg-gradient-to-t from-[var(--bg-card)] via-transparent to-black/40 pointer-events-none"></div>
 
                 <!-- Top Right Status Badge Overlay -->
                 @if ($displayStatus)

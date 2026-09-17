@@ -692,7 +692,7 @@
                 @endphp
 
                 <div class="max-w-[220px] w-full mx-auto">
-                    <div class="group relative flex flex-col bg-[var(--bg-main)] rounded-[var(--radius-md)] overflow-hidden border border-[var(--border-color)] shadow-md card-retro-hover transition-all duration-300">
+                    <div class="group relative flex flex-col bg-[var(--bg-main)] rounded-[var(--radius-md)] overflow-hidden border border-[var(--border-color)] shadow-md">
                         <!-- Cover Image Container (Strict 2:3 Aspect Ratio) -->
                         <div class="relative w-full aspect-[2/3] overflow-hidden bg-black/40">
                             <img
@@ -701,7 +701,7 @@
                                 onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80';"
                                 class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
 
-                            <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] via-transparent to-black/40 pointer-events-none"></div>
+                            <div class="absolute inset-0 z-10 bg-gradient-to-t from-[var(--bg-card)] via-transparent to-black/40 transition-none pointer-events-none"></div>
 
                             <!-- Status Badge Top Right (Se selecionado jogo existente) -->
                             @if ($existing_game_id && $status)

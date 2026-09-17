@@ -20,8 +20,8 @@
             loading="lazy"
         />
 
-        <!-- Gradient Overlay for Contrast -->
-        <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-card)] via-transparent to-black/50 opacity-90 group-hover:opacity-75 transition-opacity"></div>
+        <!-- Gradient Overlay for Seamless Transparency Transition -->
+        <div class="absolute inset-0 z-10 bg-gradient-to-t from-[var(--bg-card)] via-transparent to-black/40 pointer-events-none"></div>
 
         <!-- Top Status Badge Overlay -->
         @if ($displayStatus)
