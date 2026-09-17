@@ -9,7 +9,7 @@ services:
         volumes:
             - ./:/var/www/html
         ports:
-            - "${APP_PORT:-8000}:8000"
+            - "${APP_PORT:-8001}:8000"
         environment:
             - APP_ENV=${APP_ENV:-local}
             - APP_DEBUG=${APP_DEBUG:-true}
@@ -33,7 +33,7 @@ services:
         container_name: game_library_postgres
         restart: unless-stopped
         ports:
-            - "${FORWARD_DB_PORT:-5432}:5432"
+            - "127.0.0.1:${FORWARD_DB_PORT:-5432}:5432"
         environment:
             POSTGRES_DB: ${DB_DATABASE:-game_library_organize}
             POSTGRES_USER: ${DB_USERNAME:-postgres}
@@ -43,7 +43,11 @@ services:
         networks:
             - game_network
         healthcheck:
-            test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-game_library_organize}"]
+            test:
+                [
+                    "CMD-SHELL",
+                    "pg_isready -U ${DB_USERNAME:-postgres} -d ${DB_DATABASE:-game_library_organize}",
+                ]
             interval: 5s
             timeout: 5s
             retries: 5
@@ -57,13 +61,17 @@ services:
             - xpack.security.enabled=false
             - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
         ports:
-            - "${FORWARD_ES_PORT:-9200}:9200"
+            - "127.0.0.1:${FORWARD_ES_PORT:-9200}:9200"
         volumes:
             - game_es_data:/usr/share/elasticsearch/data
         networks:
             - game_network
         healthcheck:
-            test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+            test:
+                [
+                    "CMD-SHELL",
+                    "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'",
+                ]
             interval: 10s
             timeout: 5s
             retries: 10
