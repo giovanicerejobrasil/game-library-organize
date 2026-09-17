@@ -23,23 +23,7 @@
 
     // Mapeamento das Cores Oficiais das Plataformas e Bibliotecas Digitais
     $platformColor = function (string $name, string $slug): array {
-        $slugLower = strtolower($slug);
-        $nameLower = strtolower($name);
-
-        if (str_contains($slugLower, 'switch') || str_contains($nameLower, 'switch') || str_contains($slugLower, 'nintendo')) {
-            return ['bg' => '#E60012', 'text' => '#ffffff', 'border' => '#FF1A2D'];
-        }
-        if (str_contains($slugLower, 'playstation') || str_contains($nameLower, 'playstation') || str_contains($slugLower, 'ps')) {
-            return ['bg' => '#003791', 'text' => '#ffffff', 'border' => '#0055DC'];
-        }
-        if (str_contains($slugLower, 'xbox') || str_contains($nameLower, 'xbox')) {
-            return ['bg' => '#107C0F', 'text' => '#ffffff', 'border' => '#189A17'];
-        }
-        if (str_contains($slugLower, 'pc') || str_contains($nameLower, 'pc')) {
-            return ['bg' => '#1D2C4B', 'text' => '#ffffff', 'border' => '#2A3F6D'];
-        }
-
-        return ['bg' => 'var(--bg-main)', 'text' => 'var(--text-main)', 'border' => 'var(--border-color)'];
+        return \App\Models\Platform::resolveColors($name, $slug);
     };
 
     $libraryColor = function (string $name, string $slug): array {
@@ -397,47 +381,89 @@
                                 @enderror
                             </div>
 
-                            <!-- Star Rating (0 to 5) Interactive -->
-                            <div>
+                            <!-- Star Rating (0 to 5) Interactive with Half-Stars and Hover Lighting -->
+                            <div
+                                x-data="{
+                                    hoverRating: null,
+                                    savedRating: @entangle('rating').live,
+                                    get current() {
+                                        return this.hoverRating !== null ? this.hoverRating : (this.savedRating ? Number(this.savedRating) : 0);
+                                    }
+                                }">
                                 <div class="flex items-center justify-between mb-2">
                                     <label class="block text-xs font-semibold text-[var(--text-muted)] font-['Open_Sans'] uppercase tracking-wider">
                                         Avaliação (0 a 5 Estrelas)
                                     </label>
-                                    @if ($rating !== null && $rating > 0)
-                                    <span class="text-xs font-bold text-[var(--star-color)] font-['Ubuntu']">
-                                        {{ number_format((float) $rating, 1) }} / 5.0
+                                    <span
+                                        x-show="current > 0"
+                                        x-text="Number(current).toFixed(1) + ' / 5.0'"
+                                        class="text-xs font-bold text-[var(--star-color)] font-['Ubuntu']"
+                                        style="{{ ($rating !== null && $rating > 0) ? '' : 'display: none;' }}">
+                                        {{ $rating ? number_format((float) $rating, 1) . ' / 5.0' : '' }}
                                     </span>
-                                    @endif
                                 </div>
 
-                                <div class="flex items-center gap-1.5 p-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-[var(--radius-md)]">
-                                    @for ($star = 1; $star <= 5; $star++)
-                                    <button
-                                        type="button"
-                                        wire:key="star-btn-{{ $star }}"
-                                        wire:click="setRating({{ $star }})"
-                                        class="p-1 text-[var(--star-color)] hover:scale-125 transition-transform cursor-pointer focus:outline-none"
-                                        title="Nota {{ $star }}">
-                                        @if ($rating !== null && $rating >= $star)
-                                        <svg class="w-6 h-6 fill-current" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                        </svg>
-                                        @else
-                                        <svg class="w-6 h-6 text-[var(--border-color)] hover:text-[var(--star-color)]/60 fill-current transition-colors" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                        </svg>
-                                        @endif
-                                    </button>
-                                    @endfor
+                                <!-- Compact Container Matching Input Height (h-[44px]) -->
+                                <div
+                                    @mouseleave="hoverRating = null"
+                                    class="inline-flex items-center gap-2 px-3 py-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-[var(--radius-md)] h-[44px] shadow-xs">
+                                    <div class="flex items-center gap-0.5">
+                                        @for ($star = 1; $star <= 5; $star++)
+                                        <div
+                                            wire:key="interactive-detail-star-{{ $star }}"
+                                            class="relative w-6 h-6 flex items-center justify-center select-none">
+                                            <!-- Base Gray/Empty Star -->
+                                            <svg class="w-5 h-5 text-[var(--border-color)] fill-current transition-colors" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                            </svg>
 
-                                    @if ($rating !== null && $rating > 0)
+                                            <!-- Full Star Layer (when current >= star) -->
+                                            <div
+                                                x-show="current >= {{ $star }}"
+                                                class="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-150">
+                                                <svg class="w-5 h-5 text-[var(--star-color)] fill-current drop-shadow-[0_0_4px_rgba(255,184,0,0.5)]" viewBox="0 0 20 20">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                            </div>
+
+                                            <!-- Half Star Layer (when current === star - 0.5) -->
+                                            <div
+                                                x-show="current === {{ $star - 0.5 }}"
+                                                class="absolute inset-0 w-1/2 overflow-hidden pointer-events-none flex items-center">
+                                                <svg class="w-5 h-5 text-[var(--star-color)] fill-current drop-shadow-[0_0_4px_rgba(255,184,0,0.5)] max-w-none shrink-0" viewBox="0 0 20 20">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                                </svg>
+                                            </div>
+
+                                            <!-- Left half hover & click (0.5 value) -->
+                                            <button
+                                                type="button"
+                                                @mouseenter="hoverRating = {{ $star - 0.5 }}"
+                                                wire:click="setRating({{ $star - 0.5 }})"
+                                                class="absolute inset-y-0 left-0 w-1/2 cursor-pointer z-10 focus:outline-none"
+                                                title="Nota {{ $star - 0.5 }}"></button>
+
+                                            <!-- Right half hover & click (1.0 value) -->
+                                            <button
+                                                type="button"
+                                                @mouseenter="hoverRating = {{ $star }}"
+                                                wire:click="setRating({{ $star }})"
+                                                class="absolute inset-y-0 right-0 w-1/2 cursor-pointer z-10 focus:outline-none"
+                                                title="Nota {{ $star }}"></button>
+                                        </div>
+                                        @endfor
+                                    </div>
+
+                                    <!-- Clear Button -->
                                     <button
                                         type="button"
+                                        x-show="current > 0"
                                         wire:click="setRating(0)"
-                                        class="ml-auto text-[11px] text-[var(--text-muted)] hover:text-red-400 font-['Roboto'] px-1.5 py-0.5 rounded cursor-pointer">
+                                        @click="hoverRating = null"
+                                        class="text-[11px] text-[var(--text-muted)] hover:text-red-400 font-['Roboto'] ml-1.5 px-1.5 py-0.5 rounded transition-colors cursor-pointer"
+                                        style="{{ ($rating !== null && $rating > 0) ? '' : 'display: none;' }}">
                                         Limpar
                                     </button>
-                                    @endif
                                 </div>
                                 @error('rating')
                                 <span class="text-xs text-red-500 mt-1.5 block font-['Roboto']">{{ $message }}</span>

@@ -454,20 +454,50 @@
                         @endforeach
                     </div>
 
-                    <!-- Add custom genre -->
-                    <div class="flex items-center gap-2 max-w-sm">
+                    <!-- Add custom genre (Standard input & button sizes) -->
+                    <div class="flex items-center gap-2 max-w-md">
                         <input
                             type="text"
                             wire:model="custom_genre"
+                            wire:keydown.enter.prevent="addCustomGenre"
                             placeholder="Outro gênero..."
-                            class="flex-1 px-3 py-1.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-[var(--radius-md)] text-xs text-[var(--text-main)] placeholder-[var(--text-muted)]/60 focus:outline-none focus:border-[var(--brand-primary)] font-['Roboto']" />
+                            class="flex-1 px-3.5 py-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-[var(--radius-md)] text-xs sm:text-sm text-[var(--text-main)] placeholder-[var(--text-muted)]/60 focus:outline-none focus:border-[var(--brand-primary)] font-['Roboto'] h-[42px]" />
                         <button
                             type="button"
                             wire:click="addCustomGenre"
-                            class="px-3 py-1.5 bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-[var(--brand-primary)] rounded-[var(--radius-md)] text-xs font-semibold text-[var(--text-main)] font-['Open_Sans'] cursor-pointer">
+                            class="px-4 py-2.5 bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-[var(--brand-primary)] rounded-[var(--radius-md)] text-xs sm:text-sm font-semibold text-[var(--text-main)] font-['Open_Sans'] cursor-pointer transition-all shadow-xs h-[42px] shrink-0">
                             + Adicionar
                         </button>
                     </div>
+
+                    @php
+                        $customGenresList = array_diff($selected_genres, $availableGenres);
+                    @endphp
+                    @if (count($customGenresList) > 0)
+                    <div class="mt-3 space-y-1.5">
+                        <span class="text-[11px] font-medium text-[var(--text-muted)] font-['Roboto'] block">
+                            Outros gêneros adicionados:
+                        </span>
+                        <div class="flex flex-wrap gap-2">
+                            @foreach ($customGenresList as $customG)
+                            <span
+                                wire:key="custom-genre-tag-{{ $customG }}"
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-sm)] text-xs font-semibold font-['Roboto'] bg-[var(--brand-primary)] text-white shadow-xs">
+                                <span>{{ $customG }}</span>
+                                <button
+                                    type="button"
+                                    wire:click="toggleGenre('{{ $customG }}')"
+                                    class="hover:text-red-300 transition-colors p-0.5 cursor-pointer"
+                                    title="Remover {{ $customG }}">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </span>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                 </div>
 
                 <!-- Franchise & Age Rating Row -->
@@ -520,11 +550,11 @@
                         <button
                             type="button"
                             wire:click="addPurchaseLink"
-                            class="text-xs font-semibold text-[var(--brand-primary)] hover:underline flex items-center gap-1 cursor-pointer font-['Open_Sans']">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[var(--radius-md)] bg-[var(--bg-main)] hover:bg-[var(--border-color)]/50 text-xs font-semibold text-[var(--text-main)] border border-[var(--border-color)] hover:border-[var(--brand-primary)] transition-all cursor-pointer shadow-xs">
+                            <svg class="w-3.5 h-3.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
-                            Adicionar Loja
+                            <span>+ Adicionar Loja</span>
                         </button>
                     </div>
 
@@ -624,41 +654,89 @@
                         @enderror
                     </div>
 
-                    <!-- Star Rating (0 to 5) Interactive -->
-                    <div>
+                    <!-- Star Rating (0 to 5) Interactive with Half-Stars and Hover Lighting -->
+                    <div
+                        x-data="{
+                            hoverRating: null,
+                            savedRating: @entangle('rating').live,
+                            get current() {
+                                return this.hoverRating !== null ? this.hoverRating : (this.savedRating ? Number(this.savedRating) : 0);
+                            }
+                        }">
                         <div class="flex items-center justify-between mb-2">
                             <label class="block text-xs font-semibold text-[var(--text-muted)] font-['Open_Sans'] uppercase tracking-wider">
                                 Avaliação (Nota 0 a 5)
                             </label>
-                            @if ($rating !== null && $rating > 0)
-                            <span class="text-xs font-bold text-[var(--star-color)] font-['Ubuntu']">
-                                {{ number_format((float) $rating, 1) }} / 5.0
+                            <span
+                                x-show="current > 0"
+                                x-text="Number(current).toFixed(1) + ' / 5.0'"
+                                class="text-xs font-bold text-[var(--star-color)] font-['Ubuntu']"
+                                style="{{ ($rating !== null && $rating > 0) ? '' : 'display: none;' }}">
+                                {{ $rating ? number_format((float) $rating, 1) . ' / 5.0' : '' }}
                             </span>
-                            @endif
                         </div>
 
-                        <div class="flex items-center gap-1.5 p-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-[var(--radius-md)]">
-                            @for ($star = 1; $star <= 5; $star++)
-                                <button
-                                type="button"
-                                wire:key="star-btn-{{ $star }}"
-                                wire:click="setRating({{ $star }})"
-                                class="p-1 text-[var(--star-color)] hover:scale-125 transition-transform cursor-pointer focus:outline-none"
-                                title="Nota {{ $star }}">
-                                <svg class="w-6 h-6 {{ ($rating !== null && (float) $rating >= $star) ? 'fill-current' : 'text-[var(--border-color)] fill-current hover:text-[var(--star-color)]/60' }}" viewBox="0 0 20 20">
-                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                                </svg>
-                                </button>
-                                @endfor
+                        <!-- Compact Container Matching Input Height (h-[44px]) -->
+                        <div
+                            @mouseleave="hoverRating = null"
+                            class="inline-flex items-center gap-2 px-3 py-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-[var(--radius-md)] h-[44px] shadow-xs">
+                            <div class="flex items-center gap-0.5">
+                                @for ($star = 1; $star <= 5; $star++)
+                                <div
+                                    wire:key="interactive-star-{{ $star }}"
+                                    class="relative w-6 h-6 flex items-center justify-center select-none">
+                                    <!-- Base Gray/Empty Star -->
+                                    <svg class="w-5 h-5 text-[var(--border-color)] fill-current transition-colors" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
 
-                                @if ($rating !== null)
-                                <button
-                                    type="button"
-                                    wire:click="$set('rating', null)"
-                                    class="text-[11px] text-[var(--text-muted)] hover:text-[var(--brand-secondary)] ml-auto font-['Roboto'] cursor-pointer">
-                                    Limpar
-                                </button>
-                                @endif
+                                    <!-- Full Star Layer (when current >= star) -->
+                                    <div
+                                        x-show="current >= {{ $star }}"
+                                        class="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-150">
+                                        <svg class="w-5 h-5 text-[var(--star-color)] fill-current drop-shadow-[0_0_4px_rgba(255,184,0,0.5)]" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    </div>
+
+                                    <!-- Half Star Layer (when current === star - 0.5) -->
+                                    <div
+                                        x-show="current === {{ $star - 0.5 }}"
+                                        class="absolute inset-0 w-1/2 overflow-hidden pointer-events-none flex items-center">
+                                        <svg class="w-5 h-5 text-[var(--star-color)] fill-current drop-shadow-[0_0_4px_rgba(255,184,0,0.5)] max-w-none shrink-0" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                        </svg>
+                                    </div>
+
+                                    <!-- Left half hover & click (0.5 value) -->
+                                    <button
+                                        type="button"
+                                        @mouseenter="hoverRating = {{ $star - 0.5 }}"
+                                        wire:click="setRating({{ $star - 0.5 }})"
+                                        class="absolute inset-y-0 left-0 w-1/2 cursor-pointer z-10 focus:outline-none"
+                                        title="Nota {{ $star - 0.5 }}"></button>
+
+                                    <!-- Right half hover & click (1.0 value) -->
+                                    <button
+                                        type="button"
+                                        @mouseenter="hoverRating = {{ $star }}"
+                                        wire:click="setRating({{ $star }})"
+                                        class="absolute inset-y-0 right-0 w-1/2 cursor-pointer z-10 focus:outline-none"
+                                        title="Nota {{ $star }}"></button>
+                                </div>
+                                @endfor
+                            </div>
+
+                            <!-- Clear Button -->
+                            <button
+                                type="button"
+                                x-show="current > 0"
+                                wire:click="$set('rating', null)"
+                                @click="hoverRating = null"
+                                class="text-[11px] text-[var(--text-muted)] hover:text-red-400 font-['Roboto'] ml-1.5 px-1.5 py-0.5 rounded transition-colors cursor-pointer"
+                                style="{{ ($rating !== null && $rating > 0) ? '' : 'display: none;' }}">
+                                Limpar
+                            </button>
                         </div>
                         @error('rating')
                         <span class="text-xs text-red-500 mt-1.5 block font-['Roboto']">{{ $message }}</span>
@@ -719,7 +797,7 @@
                     <span class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider font-['Open_Sans']">
                         Pré-visualização do Card
                     </span>
-                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-[var(--brand-primary)]/15 text-[var(--brand-primary)] font-bold">
+                    <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold font-['Open_Sans'] shadow-xs">
                         Tamanho Real
                     </span>
                 </div>
@@ -796,31 +874,61 @@
                 </div>
 
                 <!-- Info Snippets Preview -->
-                <div class="pt-2 text-xs font-['Roboto'] text-[var(--text-muted)] space-y-1.5 border-t border-[var(--border-color)]/60">
-                    <div class="flex items-center justify-between">
-                        <span>Plataformas:</span>
-                        <strong class="text-[var(--text-main)]">{{ count($selected_platforms) }}</strong>
+                <div class="pt-2 text-xs font-['Roboto'] text-[var(--text-muted)] space-y-2 border-t border-[var(--border-color)]/60">
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span>Plataformas:</span>
+                            <strong class="text-[var(--text-main)]">{{ count($selected_platforms) }}</strong>
+                        </div>
+                        @if (count($selected_platforms) > 0)
+                        <div class="flex flex-wrap gap-1.5 pt-1 pb-0.5">
+                            @foreach ($availablePlatforms->whereIn('id', $selected_platforms) as $selectedPlat)
+                            @php $platCol = $selectedPlat->brand_colors; @endphp
+                            <span
+                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-sm)] text-[10px] font-semibold font-['Open_Sans'] border shadow-xs"
+                                style="background-color: {{ $platCol['bg'] }}; color: {{ $platCol['text'] }}; border-color: {{ $platCol['border'] }};">
+                                <span class="w-1.5 h-1.5 rounded-full" style="background-color: {{ $platCol['text'] }}; opacity: 0.85;"></span>
+                                <span>{{ $selectedPlat->name }}</span>
+                            </span>
+                            @endforeach
+                        </div>
+                        @endif
                     </div>
-                    <div class="flex items-center justify-between">
-                        <span>Bibliotecas:</span>
-                        <strong class="text-[var(--text-main)]">{{ count($selected_libraries) }}</strong>
+
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span>Bibliotecas:</span>
+                            <strong class="text-[var(--text-main)]">{{ count($selected_libraries) }}</strong>
+                        </div>
+                        @if (count($selected_libraries) > 0)
+                        <div class="flex flex-wrap gap-1.5 pt-1 pb-0.5">
+                            @foreach ($availableLibraries->whereIn('id', $selected_libraries) as $selectedLib)
+                            @php $previewLibCol = $selectedLib->brand_colors; @endphp
+                            <span
+                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-sm)] text-[10px] font-semibold font-['Open_Sans'] border shadow-xs"
+                                style="background-color: {{ $previewLibCol['bg'] }}; color: {{ $previewLibCol['text'] }}; border-color: {{ $previewLibCol['border'] }};">
+                                <span class="w-1.5 h-1.5 rounded-full" style="background-color: {{ $previewLibCol['text'] }}; opacity: 0.85;"></span>
+                                <span>{{ $selectedLib->name }}</span>
+                            </span>
+                            @endforeach
+                        </div>
+                        @endif
                     </div>
-                    @if (count($selected_libraries) > 0)
-                    <div class="flex flex-wrap gap-1.5 pt-0.5 pb-1">
-                        @foreach ($availableLibraries->whereIn('id', $selected_libraries) as $selectedLib)
-                        @php $previewLibCol = $selectedLib->brand_colors; @endphp
-                        <span
-                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-sm)] text-[10px] font-semibold font-['Open_Sans'] border shadow-xs"
-                            style="background-color: {{ $previewLibCol['bg'] }}; color: {{ $previewLibCol['text'] }}; border-color: {{ $previewLibCol['border'] }};">
-                            <span class="w-1.5 h-1.5 rounded-full" style="background-color: {{ $previewLibCol['text'] }}; opacity: 0.85;"></span>
-                            <span>{{ $selectedLib->name }}</span>
-                        </span>
-                        @endforeach
-                    </div>
-                    @endif
-                    <div class="flex items-center justify-between">
-                        <span>Gêneros:</span>
-                        <strong class="text-[var(--text-main)]">{{ count($selected_genres) }}</strong>
+
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span>Gêneros:</span>
+                            <strong class="text-[var(--text-main)]">{{ count($selected_genres) }}</strong>
+                        </div>
+                        @if (count($selected_genres) > 0)
+                        <div class="flex flex-wrap gap-1.5 pt-1 pb-0.5">
+                            @foreach ($selected_genres as $selectedGenre)
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-sm)] text-[10px] font-semibold font-['Open_Sans'] bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-color)] shadow-2xs">
+                                {{ $selectedGenre }}
+                            </span>
+                            @endforeach
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>

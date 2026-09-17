@@ -323,3 +323,52 @@ test('digital library chips and preview render with official brand colors when s
         ->assertSee('Steam')
         ->assertSee('Rockstar Launcher');
 });
+
+test('custom genre can be added and appears as a tag with remove button', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(AddGame::class)
+        ->set('custom_genre', 'Sobrevivência')
+        ->call('addCustomGenre')
+        ->assertSet('selected_genres', ['Sobrevivência'])
+        ->assertSee('Outros gêneros adicionados:')
+        ->assertSee('Sobrevivência')
+        ->call('toggleGenre', 'Sobrevivência')
+        ->assertSet('selected_genres', [])
+        ->assertDontSee('Outros gêneros adicionados:');
+});
+
+test('user can set half star ratings like 2.5 and 4.5', function () {
+    $user = User::factory()->create();
+    $game = Game::factory()->create(['title' => 'Half-Life 2']);
+
+    Livewire::actingAs($user)
+        ->test(AddGame::class)
+        ->call('selectCatalogGame', $game->id)
+        ->call('setRating', 4.5)
+        ->assertSet('rating', 4.5)
+        ->assertSee('4.5 / 5.0')
+        ->call('setRating', 2.5)
+        ->assertSet('rating', 2.5)
+        ->assertSee('2.5 / 5.0');
+});
+
+test('preview sidebar displays platform and genre tags alongside libraries', function () {
+    $user = User::factory()->create();
+
+    $xbox = Platform::create(['name' => 'Xbox (Microsoft)', 'slug' => 'xbox', 'icon' => 'xbox']);
+    $steam = GameLibrary::create(['name' => 'Steam', 'slug' => 'steam', 'icon' => 'steam']);
+
+    Livewire::actingAs($user)
+        ->test(AddGame::class)
+        ->set('selected_platforms', [$xbox->id])
+        ->set('selected_libraries', [$steam->id])
+        ->call('toggleGenre', 'Aventura')
+        ->call('toggleGenre', 'Ação')
+        ->assertSee('Xbox (Microsoft)')
+        ->assertSee('Steam')
+        ->assertSee('Aventura')
+        ->assertSee('Ação')
+        ->assertSee('Tamanho Real');
+});
