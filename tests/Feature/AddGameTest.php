@@ -240,3 +240,55 @@ test('experience section is only visible when an existing game is selected', fun
         ->call('clearCatalogSelection')
         ->assertDontSee('Minha Experiência');
 });
+
+test('digital libraries section is activated only when pc platform is selected', function () {
+    $user = User::factory()->create();
+
+    $pcPlatform = Platform::create(['name' => 'PC', 'slug' => 'pc', 'icon' => 'pc']);
+    $switchPlatform = Platform::create(['name' => 'Nintendo Switch', 'slug' => 'nintendo-switch', 'icon' => 'switch']);
+    $library = GameLibrary::create(['name' => 'Steam', 'slug' => 'steam', 'icon' => 'steam']);
+
+    Livewire::actingAs($user)
+        ->test(AddGame::class)
+        // Sem PC selecionado, bibliotecas digitais não estão ativadas
+        ->assertSee('Exclusivo para PC')
+        ->assertSee('Selecione a plataforma PC acima para ativar')
+        ->assertDontSee('Ativado para PC')
+        // Seleciona plataforma que não é PC
+        ->set('selected_platforms', [$switchPlatform->id])
+        ->assertDontSee('Ativado para PC')
+        // Seleciona PC
+        ->set('selected_platforms', [$switchPlatform->id, $pcPlatform->id])
+        ->assertSee('Ativado para PC')
+        ->assertSee('Steam')
+        // Pode selecionar a biblioteca Steam
+        ->set('selected_libraries', [$library->id])
+        ->assertSet('selected_libraries', [$library->id])
+        // Se desmarcar PC, as bibliotecas selecionadas são limpas automaticamente
+        ->set('selected_platforms', [$switchPlatform->id])
+        ->assertSet('selected_libraries', [])
+        ->assertDontSee('Ativado para PC')
+        // Pode ativar novamente via selectPcPlatform
+        ->call('selectPcPlatform')
+        ->assertSee('Ativado para PC');
+});
+
+test('saving game without pc platform discards any libraries', function () {
+    $user = User::factory()->create();
+
+    $switchPlatform = Platform::create(['name' => 'Nintendo Switch', 'slug' => 'nintendo-switch', 'icon' => 'switch']);
+    $library = GameLibrary::create(['name' => 'Steam', 'slug' => 'steam', 'icon' => 'steam']);
+
+    Livewire::actingAs($user)
+        ->test(AddGame::class)
+        ->set('title', 'Super Mario Odyssey')
+        ->set('selected_platforms', [$switchPlatform->id])
+        ->set('selected_libraries', [$library->id]) // Tentativa de enviar biblioteca sem PC
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $game = Game::where('title', 'Super Mario Odyssey')->first();
+    expect($game)->not->toBeNull()
+        ->and($game->platforms)->toHaveCount(1)
+        ->and($game->libraries)->toHaveCount(0); // Garante que bibliotecas foram descartadas
+});

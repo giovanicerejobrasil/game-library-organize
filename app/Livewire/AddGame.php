@@ -6,6 +6,7 @@ namespace App\Livewire;
 
 use App\Enums\GameStatus;
 use App\Models\Game;
+use App\Models\Platform;
 use App\Models\User;
 use App\Services\Games\GameService;
 use Illuminate\Contracts\View\View;
@@ -139,6 +140,53 @@ class AddGame extends Component
     }
 
     /**
+     * Verifica se a plataforma PC está entre as plataformas selecionadas
+     */
+    public function isPcSelected(): bool
+    {
+        if (empty($this->selected_platforms)) {
+            return false;
+        }
+
+        $platformIds = array_map('intval', (array) $this->selected_platforms);
+
+        return Platform::whereIn('id', $platformIds)
+            ->where(function ($query) {
+                $query->where('slug', 'pc')
+                    ->orWhereRaw('LOWER(name) = ?', ['pc']);
+            })
+            ->exists();
+    }
+
+    /**
+     * Hook chamado automaticamente pelo Livewire quando selected_platforms for alterado
+     */
+    public function updatedSelectedPlatforms(): void
+    {
+        if (! $this->isPcSelected()) {
+            $this->selected_libraries = [];
+        }
+    }
+
+    /**
+     * Adiciona a plataforma PC à lista de plataformas selecionadas
+     */
+    public function selectPcPlatform(): void
+    {
+        $pcPlatform = Platform::where('slug', 'pc')
+            ->orWhereRaw('LOWER(name) = ?', ['pc'])
+            ->first();
+
+        if ($pcPlatform) {
+            $current = array_map('intval', (array) $this->selected_platforms);
+            if (! in_array($pcPlatform->id, $current, true)) {
+                $this->selected_platforms[] = $pcPlatform->id;
+                $this->updatedSelectedPlatforms();
+            }
+        }
+    }
+
+    /**
      * Seleciona um jogo existente do catálogo para preencher os dados
      */
     public function selectCatalogGame(int $gameId): void
@@ -163,7 +211,9 @@ class AddGame extends Component
         $this->age_rating = $game->age_rating ?? '';
         $this->selected_genres = is_array($game->genre) ? $game->genre : [];
         $this->selected_platforms = $game->platforms->pluck('id')->all();
-        $this->selected_libraries = $game->libraries->pluck('id')->all();
+        $this->selected_libraries = $this->isPcSelected()
+            ? $game->libraries->pluck('id')->all()
+            : [];
 
         // Se o usuário já possuir registro deste jogo, carrega as informações pessoais
         /** @var User $user */
@@ -272,6 +322,10 @@ class AddGame extends Component
         /** @var User $user */
         $user = Auth::user();
 
+        if (! $this->isPcSelected()) {
+            $this->selected_libraries = [];
+        }
+
         // Formata links de compra em array associativo
         $formattedPurchaseLinks = [];
         foreach ($this->purchase_links as $link) {
@@ -339,6 +393,7 @@ class AddGame extends Component
             'availableLibraries' => $availableLibraries,
             'availableGenres' => $availableGenres,
             'statuses' => GameStatus::cases(),
+            'isPcSelected' => $this->isPcSelected(),
         ])->layout('layouts.app', [
             'title' => 'Adicionar Jogo à Biblioteca',
         ]);

@@ -347,11 +347,35 @@
                     @enderror
                 </div>
 
-                <!-- Libraries Selection -->
+                <!-- Libraries Selection (Exclusive to PC platform) -->
                 <div class="pt-2">
-                    <label class="block text-xs font-semibold text-[var(--text-muted)] font-['Open_Sans'] uppercase tracking-wider mb-2.5">
-                        Bibliotecas Digitais
-                    </label>
+                    <div class="flex items-center justify-between mb-2.5">
+                        <div class="flex items-center gap-2">
+                            <label class="block text-xs font-semibold {{ $isPcSelected ? 'text-[var(--text-muted)]' : 'text-[var(--text-muted)]/70' }} font-['Open_Sans'] uppercase tracking-wider">
+                                Bibliotecas Digitais
+                            </label>
+                            @if ($isPcSelected)
+                            <span class="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                                </svg>
+                                Ativado para PC
+                            </span>
+                            @else
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-medium bg-[var(--border-color)]/70 text-[var(--text-muted)]">
+                                Exclusivo para PC
+                            </span>
+                            @endif
+                        </div>
+
+                        @if (! $isPcSelected)
+                        <span class="text-[11px] text-[var(--text-muted)]/80 font-['Roboto'] hidden sm:inline">
+                            Selecione a plataforma PC acima para ativar
+                        </span>
+                        @endif
+                    </div>
+
+                    @if ($isPcSelected)
                     <div class="flex flex-wrap gap-2.5">
                         @foreach ($availableLibraries as $lib)
                         <label
@@ -371,6 +395,23 @@
                         </label>
                         @endforeach
                     </div>
+                    @else
+                    <div class="p-3.5 rounded-[var(--radius-md)] bg-[var(--bg-main)]/60 border border-dashed border-[var(--border-color)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[var(--text-muted)]">
+                        <div class="flex items-center gap-2.5">
+                            <svg class="w-4 h-4 text-[var(--text-muted)] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
+                            <span>As bibliotecas digitais (Steam, Epic Games, GOG, etc.) são exclusivas para jogos de PC. Selecione a plataforma <strong>PC</strong> acima para ativá-las.</span>
+                        </div>
+                        <button
+                            type="button"
+                            wire:click="selectPcPlatform"
+                            class="shrink-0 self-start sm:self-auto px-3 py-1 rounded-[var(--radius-sm)] bg-[var(--bg-card)] border border-[var(--border-color)] hover:border-[var(--brand-primary)] text-xs font-semibold text-[var(--text-main)] font-['Open_Sans'] transition-colors cursor-pointer">
+                            + Selecionar PC
+                        </button>
+                    </div>
+                    @endif
+
                     @error('selected_libraries')
                     <span class="text-xs text-red-500 mt-1.5 block font-['Roboto']">{{ $message }}</span>
                     @enderror
