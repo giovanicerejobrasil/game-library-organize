@@ -292,3 +292,34 @@ test('saving game without pc platform discards any libraries', function () {
         ->and($game->platforms)->toHaveCount(1)
         ->and($game->libraries)->toHaveCount(0); // Garante que bibliotecas foram descartadas
 });
+
+test('digital library chips and preview render with official brand colors when selected', function () {
+    $user = User::factory()->create();
+
+    $pcPlatform = Platform::create(['name' => 'PC', 'slug' => 'pc', 'icon' => 'pc']);
+    $steam = GameLibrary::create(['name' => 'Steam', 'slug' => 'steam', 'icon' => 'steam']);
+    $epic = GameLibrary::create(['name' => 'Epic Games', 'slug' => 'epic-games', 'icon' => 'epic']);
+    $rockstar = GameLibrary::create(['name' => 'Rockstar Launcher', 'slug' => 'rockstar-launcher', 'icon' => 'rockstar']);
+
+    // Verifica que as cores de cada modelo correspondem às especificações oficiais
+    expect($steam->brand_colors['bg'])->toBe('#1D2C4B')
+        ->and($epic->brand_colors['bg'])->toBe('#000000')
+        ->and($rockstar->brand_colors['bg'])->toBe('#F7A600')
+        ->and($rockstar->brand_colors['text'])->toBe('#000000');
+
+    Livewire::actingAs($user)
+        ->test(AddGame::class)
+        ->set('selected_platforms', [$pcPlatform->id])
+        // Quando não selecionado, já renderiza a cor oficial no ponto indicador
+        ->assertSee('#1D2C4B')
+        ->assertSee('#000000')
+        ->assertSee('#F7A600')
+        // Seleciona Steam e Rockstar
+        ->set('selected_libraries', [$steam->id, $rockstar->id])
+        // Verifica que o fundo oficial de seleção é aplicado nos chips
+        ->assertSee('background-color: #1D2C4B', false)
+        ->assertSee('background-color: #F7A600', false)
+        // Verifica que a pré-visualização do sidebar exibe os badges das bibliotecas selecionadas
+        ->assertSee('Steam')
+        ->assertSee('Rockstar Launcher');
+});

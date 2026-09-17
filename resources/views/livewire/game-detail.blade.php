@@ -43,35 +43,7 @@
     };
 
     $libraryColor = function (string $name, string $slug): array {
-        $slugLower = strtolower($slug);
-        $nameLower = strtolower($name);
-
-        if (str_contains($slugLower, 'steam') || str_contains($nameLower, 'steam')) {
-            return ['bg' => '#1D2C4B', 'text' => '#ffffff', 'border' => '#2A3F6D'];
-        }
-        if (str_contains($slugLower, 'epic') || str_contains($nameLower, 'epic')) {
-            return ['bg' => '#000000', 'text' => '#ffffff', 'border' => '#333333'];
-        }
-        if (str_contains($slugLower, 'luna') || str_contains($nameLower, 'luna') || str_contains($slugLower, 'amazon') || str_contains($nameLower, 'amazon')) {
-            return ['bg' => '#8E45F7', 'text' => '#ffffff', 'border' => '#A368F8'];
-        }
-        if (str_contains($slugLower, 'ea') || str_contains($nameLower, 'ea')) {
-            return ['bg' => '#FF4747', 'text' => '#ffffff', 'border' => '#FF6B6B'];
-        }
-        if (str_contains($slugLower, 'gog') || str_contains($nameLower, 'gog')) {
-            return ['bg' => '#981EEA', 'text' => '#ffffff', 'border' => '#B047F0'];
-        }
-        if (str_contains($slugLower, 'rockstar') || str_contains($nameLower, 'rockstar')) {
-            return ['bg' => '#F7A600', 'text' => '#000000', 'border' => '#FFB81A'];
-        }
-        if (str_contains($slugLower, 'ubisoft') || str_contains($nameLower, 'ubisoft')) {
-            return ['bg' => '#3B4984', 'text' => '#ffffff', 'border' => '#4E5FA8'];
-        }
-        if (str_contains($slugLower, 'xbox') || str_contains($nameLower, 'xbox')) {
-            return ['bg' => '#107C0F', 'text' => '#ffffff', 'border' => '#189A17'];
-        }
-
-        return ['bg' => 'var(--bg-main)', 'text' => 'var(--text-main)', 'border' => 'var(--border-color)'];
+        return \App\Models\GameLibrary::resolveColors($name, $slug);
     };
     @endphp
 

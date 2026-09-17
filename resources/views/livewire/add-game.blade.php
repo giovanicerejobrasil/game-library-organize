@@ -378,17 +378,23 @@
                     @if ($isPcSelected)
                     <div class="flex flex-wrap gap-2.5">
                         @foreach ($availableLibraries as $lib)
+                        @php
+                            $libCol = $lib->brand_colors;
+                            $isSelected = in_array($lib->id, $selected_libraries);
+                        @endphp
                         <label
                             wire:key="library-chip-{{ $lib->id }}"
-                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-md)] border text-xs font-['Open_Sans'] cursor-pointer transition-all {{ in_array($lib->id, $selected_libraries) ? 'bg-[var(--brand-secondary)] text-white border-[var(--brand-secondary)] shadow-sm' : 'bg-[var(--bg-main)] text-[var(--text-main)] border-[var(--border-color)] hover:border-[var(--brand-secondary)]' }}">
+                            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-md)] border text-xs font-semibold font-['Open_Sans'] cursor-pointer transition-all {{ $isSelected ? 'shadow-sm scale-[1.02]' : 'bg-[var(--bg-main)] text-[var(--text-main)] border-[var(--border-color)] hover:scale-[1.01]' }}"
+                            style="{{ $isSelected ? "background-color: {$libCol['bg']}; color: {$libCol['text']}; border-color: {$libCol['border']}; box-shadow: 0 2px 8px {$libCol['bg']}50;" : "" }}">
                             <input
                                 type="checkbox"
                                 value="{{ $lib->id }}"
                                 wire:model.live="selected_libraries"
                                 class="sr-only" />
+                            <span class="w-2.5 h-2.5 rounded-full shrink-0 border {{ $isSelected ? 'border-white/30' : 'border-black/20 dark:border-white/20' }}" style="background-color: {{ $libCol['bg'] }};"></span>
                             <span>{{ $lib->name }}</span>
-                            @if (in_array($lib->id, $selected_libraries))
-                            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            @if ($isSelected)
+                            <svg class="w-3.5 h-3.5 shrink-0" style="color: {{ $libCol['text'] }};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                             </svg>
                             @endif
@@ -799,6 +805,19 @@
                         <span>Bibliotecas:</span>
                         <strong class="text-[var(--text-main)]">{{ count($selected_libraries) }}</strong>
                     </div>
+                    @if (count($selected_libraries) > 0)
+                    <div class="flex flex-wrap gap-1.5 pt-0.5 pb-1">
+                        @foreach ($availableLibraries->whereIn('id', $selected_libraries) as $selectedLib)
+                        @php $previewLibCol = $selectedLib->brand_colors; @endphp
+                        <span
+                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-sm)] text-[10px] font-semibold font-['Open_Sans'] border shadow-xs"
+                            style="background-color: {{ $previewLibCol['bg'] }}; color: {{ $previewLibCol['text'] }}; border-color: {{ $previewLibCol['border'] }};">
+                            <span class="w-1.5 h-1.5 rounded-full" style="background-color: {{ $previewLibCol['text'] }}; opacity: 0.85;"></span>
+                            <span>{{ $selectedLib->name }}</span>
+                        </span>
+                        @endforeach
+                    </div>
+                    @endif
                     <div class="flex items-center justify-between">
                         <span>Gêneros:</span>
                         <strong class="text-[var(--text-main)]">{{ count($selected_genres) }}</strong>
