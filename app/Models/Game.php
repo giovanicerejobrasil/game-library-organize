@@ -106,4 +106,30 @@ class Game extends Model
             ->withPivot(['id', 'status', 'hours_played', 'rating', 'review', 'finished_at'])
             ->withTimestamps();
     }
+
+    /**
+     * Resolve o model para vinculação de rotas aceitando tanto o slug quanto o ID
+     */
+    public function resolveRouteBinding($value, $field = null): ?Model
+    {
+        if ($field) {
+            return parent::resolveRouteBinding($value, $field);
+        }
+
+        if (is_numeric($value)) {
+            return $this->where('id', (int) $value)->first()
+                ?? $this->where('slug', (string) $value)->first();
+        }
+
+        return $this->where('slug', (string) $value)->first()
+            ?? $this->where('id', $value)->first();
+    }
+
+    /**
+     * Define o slug como chave preferencial para geração de URLs
+     */
+    public function getRouteKey(): mixed
+    {
+        return $this->slug ?: $this->getKey();
+    }
 }

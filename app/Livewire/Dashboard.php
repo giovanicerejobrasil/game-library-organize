@@ -36,11 +36,11 @@ class Dashboard extends Component
     public ?int $selectedGameId = null;
 
     /**
-     * Seleciona um jogo para visualização
+     * Redireciona para a página de detalhes do jogo
      */
-    public function showGameModal(int $gameId): void
+    public function showGameModal(int $gameId)
     {
-        $this->selectedGameId = $gameId;
+        return $this->redirect(route('games.show', $gameId), navigate: true);
     }
 
     /**

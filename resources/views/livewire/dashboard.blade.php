@@ -414,7 +414,9 @@
         $displayHours = $userGame ? (float) $userGame->hours_played : 0.0;
         $coverUrl = $game->cover_image ?? 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80';
         @endphp
-        <div
+        <a
+            href="{{ route('games.show', $game->slug) }}"
+            wire:navigate
             wire:key="game-card-{{ $game->id }}"
             class="group relative flex flex-col bg-[var(--bg-card)] rounded-[var(--radius-md)] overflow-hidden border border-[var(--border-color)] hover:border-[var(--brand-primary)]/70 transition-colors duration-300">
             <!-- Cover Image Container (Strict 2:3 Aspect Ratio) -->
@@ -482,7 +484,7 @@
                     @endif
                 </div>
             </div>
-        </div>
+        </a>
         @endforeach
     </div>
     @else
@@ -500,9 +502,11 @@
         $coverUrl = $game->cover_image ?? 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80';
         @endphp
 
-        <div
+        <a
+            href="{{ route('games.show', $game->slug) }}"
+            wire:navigate
             wire:key="game-list-{{ $game->id }}"
-            class="p-3 sm:p-4 flex items-center justify-between gap-4 hover:bg-[var(--border-color)]/20 transition-colors cursor-pointer" wire:click="showGameModal({{ $game->id }})">
+            class="p-3 sm:p-4 flex items-center justify-between gap-4 hover:bg-[var(--border-color)]/20 transition-colors cursor-pointer">
             <!-- Cover Thumbnail & Title -->
             <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                 <div class="relative w-12 h-16 sm:w-14 sm:h-20 aspect-[2/3] rounded-[var(--radius-sm)] overflow-hidden bg-black/40 flex-shrink-0">
@@ -549,7 +553,7 @@
                     @endif
                 </div>
             </div>
-        </div>
+        </a>
         @endforeach
     </div>
     @endif
