@@ -116,7 +116,7 @@ test('authenticated user can update their personal game progress and rating', fu
         ->and($userGame->review)->toBe('Trilha sonora incrível e gameplay preciso.');
 });
 
-test('authenticated user can remove game from their personal library', function () {
+test('authenticated user can toggle removal confirmation modal and cancel or confirm deletion', function () {
     $user = User::factory()->create();
     $game = Game::factory()->create(['title' => 'Elden Ring']);
 
@@ -134,12 +134,44 @@ test('authenticated user can remove game from their personal library', function 
     Livewire::actingAs($user)
         ->test(GameDetail::class, ['game' => $game])
         ->assertSet('inUserLibrary', true)
+        ->assertSet('showDeleteModal', false)
+        ->call('confirmRemoval')
+        ->assertSet('showDeleteModal', true)
+        ->call('cancelRemoval')
+        ->assertSet('showDeleteModal', false)
+        ->call('confirmRemoval')
+        ->assertSet('showDeleteModal', true)
         ->call('removeFromLibrary')
+        ->assertSet('showDeleteModal', false)
         ->assertSet('inUserLibrary', false)
         ->assertSet('status', GameStatus::Backlog->value)
         ->assertSet('hours_played', 0);
 
     expect(UserGame::where('user_id', $user->id)->where('game_id', $game->id)->exists())->toBeFalse();
+});
+
+test('game detail page renders official Brazilian age rating and launcher colors', function () {
+    $user = User::factory()->create();
+
+    $steam = GameLibrary::create(['name' => 'Steam', 'slug' => 'steam']);
+    $epic = GameLibrary::create(['name' => 'Epic Games', 'slug' => 'epic-games']);
+
+    $game = Game::factory()->create([
+        'title' => 'Red Dead Redemption 2',
+        'age_rating' => '18',
+    ]);
+
+    $game->libraries()->attach([$steam->id, $epic->id]);
+
+    $response = $this->actingAs($user)->get(route('games.show', $game->slug));
+
+    $response->assertOk();
+    // Classificação 18+ (#000000)
+    $response->assertSee('#000000');
+    // Steam (#1D2C4B)
+    $response->assertSee('#1D2C4B');
+    // Epic Games (#000000)
+    $response->assertSee('Epic Games');
 });
 
 test('game detail resolves by both slug and numeric id', function () {

@@ -32,6 +32,8 @@ class GameDetail extends Component
 
     public string $review = '';
 
+    public bool $showDeleteModal = false;
+
     /**
      * Inicializa o componente com o jogo resolvido via Route Model Binding
      */
@@ -125,6 +127,22 @@ class GameDetail extends Component
     }
 
     /**
+     * Exibe o modal de confirmação para remoção do jogo
+     */
+    public function confirmRemoval(): void
+    {
+        $this->showDeleteModal = true;
+    }
+
+    /**
+     * Cancela a remoção e fecha o modal
+     */
+    public function cancelRemoval(): void
+    {
+        $this->showDeleteModal = false;
+    }
+
+    /**
      * Remove o jogo da biblioteca pessoal do usuário
      */
     public function removeFromLibrary(GameSearchService $searchService): void
@@ -138,6 +156,7 @@ class GameDetail extends Component
 
         $this->userGame = null;
         $this->inUserLibrary = false;
+        $this->showDeleteModal = false;
         $this->status = GameStatus::Backlog->value;
         $this->hours_played = 0;
         $this->rating = null;

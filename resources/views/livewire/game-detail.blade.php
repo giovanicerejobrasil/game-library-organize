@@ -2,26 +2,97 @@
     @php
     $coverUrl = $game->cover_image ?? 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80';
     $bgUrl = $game->background_image ?? $coverUrl;
+
+    // Mapeamento das Cores Oficiais da Classificação Indicativa do Brasil (ClassInd)
+    $ageRatingConfig = function (?string $rating): ?array {
+        if (! $rating) {
+            return null;
+        }
+        $clean = trim($rating);
+        return match($clean) {
+            'Livre' => ['bg' => '#338933', 'text' => '#ffffff', 'label' => 'Livre'],
+            '10', '10+' => ['bg' => '#2474B9', 'text' => '#ffffff', 'label' => $clean],
+            '12', '12+' => ['bg' => '#FFCC00', 'text' => '#000000', 'label' => $clean],
+            '14', '14+' => ['bg' => '#DB772C', 'text' => '#ffffff', 'label' => $clean],
+            '16', '16+' => ['bg' => '#C90000', 'text' => '#ffffff', 'label' => $clean],
+            '18', '18+' => ['bg' => '#000000', 'text' => '#ffffff', 'label' => $clean],
+            default => ['bg' => '#2a2a3b', 'text' => '#fafafa', 'label' => $clean],
+        };
+    };
+    $ratingData = $ageRatingConfig($game->age_rating);
+
+    // Mapeamento das Cores Oficiais das Plataformas e Bibliotecas Digitais
+    $platformColor = function (string $name, string $slug): array {
+        $slugLower = strtolower($slug);
+        $nameLower = strtolower($name);
+
+        if (str_contains($slugLower, 'switch') || str_contains($nameLower, 'switch') || str_contains($slugLower, 'nintendo')) {
+            return ['bg' => '#E60012', 'text' => '#ffffff', 'border' => '#FF1A2D'];
+        }
+        if (str_contains($slugLower, 'playstation') || str_contains($nameLower, 'playstation') || str_contains($slugLower, 'ps')) {
+            return ['bg' => '#003791', 'text' => '#ffffff', 'border' => '#0055DC'];
+        }
+        if (str_contains($slugLower, 'xbox') || str_contains($nameLower, 'xbox')) {
+            return ['bg' => '#107C0F', 'text' => '#ffffff', 'border' => '#189A17'];
+        }
+        if (str_contains($slugLower, 'pc') || str_contains($nameLower, 'pc')) {
+            return ['bg' => '#1D2C4B', 'text' => '#ffffff', 'border' => '#2A3F6D'];
+        }
+
+        return ['bg' => 'var(--bg-main)', 'text' => 'var(--text-main)', 'border' => 'var(--border-color)'];
+    };
+
+    $libraryColor = function (string $name, string $slug): array {
+        $slugLower = strtolower($slug);
+        $nameLower = strtolower($name);
+
+        if (str_contains($slugLower, 'steam') || str_contains($nameLower, 'steam')) {
+            return ['bg' => '#1D2C4B', 'text' => '#ffffff', 'border' => '#2A3F6D'];
+        }
+        if (str_contains($slugLower, 'epic') || str_contains($nameLower, 'epic')) {
+            return ['bg' => '#000000', 'text' => '#ffffff', 'border' => '#333333'];
+        }
+        if (str_contains($slugLower, 'luna') || str_contains($nameLower, 'luna') || str_contains($slugLower, 'amazon') || str_contains($nameLower, 'amazon')) {
+            return ['bg' => '#8E45F7', 'text' => '#ffffff', 'border' => '#A368F8'];
+        }
+        if (str_contains($slugLower, 'ea') || str_contains($nameLower, 'ea')) {
+            return ['bg' => '#FF4747', 'text' => '#ffffff', 'border' => '#FF6B6B'];
+        }
+        if (str_contains($slugLower, 'gog') || str_contains($nameLower, 'gog')) {
+            return ['bg' => '#981EEA', 'text' => '#ffffff', 'border' => '#B047F0'];
+        }
+        if (str_contains($slugLower, 'rockstar') || str_contains($nameLower, 'rockstar')) {
+            return ['bg' => '#F7A600', 'text' => '#000000', 'border' => '#FFB81A'];
+        }
+        if (str_contains($slugLower, 'ubisoft') || str_contains($nameLower, 'ubisoft')) {
+            return ['bg' => '#3B4984', 'text' => '#ffffff', 'border' => '#4E5FA8'];
+        }
+        if (str_contains($slugLower, 'xbox') || str_contains($nameLower, 'xbox')) {
+            return ['bg' => '#107C0F', 'text' => '#ffffff', 'border' => '#189A17'];
+        }
+
+        return ['bg' => 'var(--bg-main)', 'text' => 'var(--text-main)', 'border' => 'var(--border-color)'];
+    };
     @endphp
 
-    <!-- Hero Banner Background with Gradient Transition -->
-    <div class="relative w-full h-64 sm:h-80 md:h-96 lg:h-[420px] overflow-hidden bg-black/80">
-        <!-- Background Image with Ambient Glow and Overlay -->
+    <!-- Hero Banner Background with High Contrast and Visibility -->
+    <div class="relative w-full h-72 sm:h-88 md:h-[420px] lg:h-[460px] overflow-hidden bg-black">
+        <!-- Background Image Sharp & Apparent -->
         <img
             src="{{ $bgUrl }}"
             alt="{{ $game->title }} Wallpaper"
             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1920&q=80';"
-            class="w-full h-full object-cover object-center opacity-35 blur-[2px] scale-105 pointer-events-none" />
+            class="w-full h-full object-cover object-center opacity-70 scale-100 pointer-events-none transition-opacity duration-300" />
 
-        <!-- Gradient Fade To Main Background -->
-        <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-main)] via-[var(--bg-main)]/60 to-black/70 pointer-events-none"></div>
+        <!-- Gradient Overlay Allowing Wallpaper to Shine Through -->
+        <div class="absolute inset-0 bg-gradient-to-t from-[var(--bg-main)] via-[var(--bg-main)]/35 to-black/50 pointer-events-none"></div>
 
         <!-- Top Breadcrumbs & Back Navigation -->
         <div class="absolute top-6 left-0 right-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-20 flex items-center justify-between">
             <a
                 href="{{ route('dashboard') }}"
                 wire:navigate
-                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[var(--radius-md)] bg-[var(--bg-card)]/85 hover:bg-[var(--bg-card)] border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)] font-['Open_Sans'] backdrop-blur-md shadow-md transition-all hover:border-[var(--brand-primary)] cursor-pointer">
+                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-[var(--radius-md)] bg-[var(--bg-card)]/90 hover:bg-[var(--bg-card)] border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)] font-['Open_Sans'] backdrop-blur-md shadow-md transition-all hover:border-[var(--brand-primary)] cursor-pointer">
                 <svg class="w-4 h-4 text-[var(--brand-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
@@ -29,7 +100,7 @@
             </a>
 
             @if ($inUserLibrary)
-            <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold font-['Open_Sans']">
+            <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold font-['Open_Sans'] backdrop-blur-md shadow-sm">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                 </svg>
@@ -99,7 +170,12 @@
                     @if ($game->platforms->isNotEmpty())
                     <div class="flex flex-wrap gap-2">
                         @foreach ($game->platforms as $plat)
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[var(--radius-sm)] text-xs font-medium bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-color)] font-['Open_Sans']">
+                        @php
+                        $pColor = $platformColor($plat->name, $plat->slug);
+                        @endphp
+                        <span
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-[var(--radius-sm)] text-xs font-semibold font-['Open_Sans'] shadow-sm border"
+                            style="background-color: {{ $pColor['bg'] }}; color: {{ $pColor['text'] }}; border-color: {{ $pColor['border'] }};">
                             <span>{{ $plat->name }}</span>
                         </span>
                         @endforeach
@@ -121,7 +197,12 @@
                     @if ($game->libraries->isNotEmpty())
                     <div class="flex flex-wrap gap-2">
                         @foreach ($game->libraries as $lib)
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[var(--radius-sm)] text-xs font-semibold bg-[var(--brand-secondary)]/15 text-[var(--brand-secondary)] border border-[var(--brand-secondary)]/30 font-['Open_Sans']">
+                        @php
+                        $lColor = $libraryColor($lib->name, $lib->slug);
+                        @endphp
+                        <span
+                            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-[var(--radius-sm)] text-xs font-semibold font-['Open_Sans'] shadow-sm border"
+                            style="background-color: {{ $lColor['bg'] }}; color: {{ $lColor['text'] }}; border-color: {{ $lColor['border'] }};">
                             <span>{{ $lib->name }}</span>
                         </span>
                         @endforeach
@@ -163,11 +244,11 @@
             <div class="flex-1 min-w-0 space-y-8">
                 <!-- Header Info Area -->
                 <div class="space-y-4">
-                    <!-- Title & Franchise Pill -->
+                    <!-- Title & Franchise Pill (High Contrast) -->
                     <div class="space-y-2">
                         @if ($game->is_franchise && $game->franchise_name)
-                        <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-semibold bg-[var(--brand-primary)]/15 text-[var(--brand-primary)] border border-[var(--brand-primary)]/30 font-['Open_Sans']">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-400/15 text-amber-300 border border-amber-400/30 font-['Open_Sans'] shadow-sm">
+                            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
                             <span>Franquia {{ $game->franchise_name }}</span>
@@ -202,11 +283,15 @@
                         </div>
                         @endif
 
-                        @if ($game->age_rating)
+                        <!-- Official Brazilian Age Rating Badge (ClassInd) -->
+                        @if ($ratingData)
                         <div class="flex items-center gap-1.5">
                             <span class="text-[var(--text-muted)]/70">Classificação:</span>
-                            <span class="px-2 py-0.5 text-xs font-bold rounded-[var(--radius-sm)] bg-[var(--border-color)] text-[var(--text-main)] font-['Ubuntu']">
-                                {{ $game->age_rating }}
+                            <span
+                                class="px-2.5 py-0.5 text-xs font-bold rounded-[var(--radius-sm)] shadow-sm font-['Ubuntu'] inline-flex items-center justify-center min-w-[28px] border border-black/20"
+                                style="background-color: {{ $ratingData['bg'] }}; color: {{ $ratingData['text'] }};"
+                                title="Classificação Indicativa: {{ $ratingData['label'] }}">
+                                {{ $ratingData['label'] }}
                             </span>
                         </div>
                         @endif
@@ -264,35 +349,20 @@
 
                 <!-- User Personal Experience & Evaluation Section -->
                 <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[var(--radius-lg)] p-6 sm:p-7 space-y-6 shadow-sm">
-                    <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-4">
-                        <div class="flex items-center gap-2.5">
-                            <span class="p-1.5 rounded-[var(--radius-sm)] bg-[var(--brand-primary)]/15 text-[var(--brand-primary)]">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                                </svg>
-                            </span>
-                            <div>
-                                <h2 class="text-base font-bold font-['Ubuntu'] text-[var(--text-main)]">
-                                    Minha Experiência com o Jogo
-                                </h2>
-                                <p class="text-xs text-[var(--text-muted)] font-['Roboto']">
-                                    {{ $inUserLibrary ? 'Gerencie seu status, tempo de jogo, nota e suas impressões pessoais.' : 'Adicione este jogo à sua biblioteca pessoal registrando seu progresso.' }}
-                                </p>
-                            </div>
-                        </div>
-
-                        @if ($inUserLibrary)
-                        <button
-                            type="button"
-                            wire:click="removeFromLibrary"
-                            wire:confirm="Tem certeza de que deseja remover este jogo da sua biblioteca pessoal?"
-                            class="text-xs font-medium text-red-400 hover:text-red-300 hover:underline flex items-center gap-1 font-['Open_Sans'] cursor-pointer">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    <div class="flex items-center gap-2.5 border-b border-[var(--border-color)] pb-4">
+                        <span class="p-1.5 rounded-[var(--radius-sm)] bg-[var(--brand-primary)]/15 text-[var(--brand-primary)]">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                             </svg>
-                            <span>Remover</span>
-                        </button>
-                        @endif
+                        </span>
+                        <div>
+                            <h2 class="text-base font-bold font-['Ubuntu'] text-[var(--text-main)]">
+                                Minha Experiência com o Jogo
+                            </h2>
+                            <p class="text-xs text-[var(--text-muted)] font-['Roboto']">
+                                {{ $inUserLibrary ? 'Gerencie seu status, tempo de jogo, nota e suas impressões pessoais.' : 'Adicione este jogo à sua biblioteca pessoal registrando seu progresso.' }}
+                            </p>
+                        </div>
                     </div>
 
                     <form wire:submit.prevent="saveUserProgress" class="space-y-6">
@@ -419,11 +489,25 @@
                             @enderror
                         </div>
 
-                        <!-- Save Action Button -->
-                        <div class="flex items-center justify-end pt-2 border-t border-[var(--border-color)]/60">
+                        <!-- Actions Row at the Bottom: Remove Button on the left & Save Button on the right -->
+                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[var(--border-color)]/60">
+                            <div>
+                                @if ($inUserLibrary)
+                                <button
+                                    type="button"
+                                    wire:click="confirmRemoval"
+                                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-[var(--radius-md)] bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 text-xs font-semibold font-['Open_Sans'] cursor-pointer transition-all">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    <span>Remover da Biblioteca</span>
+                                </button>
+                                @endif
+                            </div>
+
                             <button
                                 type="submit"
-                                class="inline-flex items-center gap-2 px-6 py-2.5 rounded-[var(--radius-md)] bg-[var(--brand-primary)] hover:brightness-110 text-white font-semibold text-sm font-['Open_Sans'] shadow-md cursor-pointer transition-all">
+                                class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-[var(--radius-md)] bg-[var(--brand-primary)] hover:brightness-110 text-white font-semibold text-sm font-['Open_Sans'] shadow-md cursor-pointer transition-all w-full sm:w-auto">
                                 <svg wire:loading wire:target="saveUserProgress" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
                                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -436,4 +520,58 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal de Confirmação de Exclusão Posicionado no Topo da Tela -->
+    @if ($showDeleteModal)
+    <div
+        class="fixed inset-0 z-50 overflow-y-auto"
+        role="dialog"
+        aria-modal="true"
+        @keydown.escape.window="$wire.cancelRemoval()">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity" wire:click="cancelRemoval"></div>
+
+        <!-- Modal Card Posicionado no Topo -->
+        <div class="relative min-h-screen flex items-start justify-center pt-8 sm:pt-14 px-4 pb-6">
+            <div class="relative max-w-md w-full bg-[var(--bg-card)] border border-red-500/40 rounded-[var(--radius-lg)] p-6 shadow-2xl space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                <!-- Modal Header com Ícone de Alerta -->
+                <div class="flex items-start gap-3.5">
+                    <div class="p-2.5 rounded-full bg-red-500/15 border border-red-500/30 text-red-400 shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-base font-bold font-['Ubuntu'] text-[var(--text-main)] leading-tight">
+                            Remover da Biblioteca?
+                        </h3>
+                        <p class="text-xs text-[var(--text-muted)] font-['Roboto'] mt-1.5 leading-relaxed">
+                            Tem certeza de que deseja remover <strong class="text-[var(--text-main)]">{{ $game->title }}</strong> da sua biblioteca? Seu histórico de horas jogadas, status e avaliações registradas serão excluídos.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Modal Actions -->
+                <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-[var(--border-color)]/60">
+                    <button
+                        type="button"
+                        wire:click="cancelRemoval"
+                        class="px-4 py-2 rounded-[var(--radius-md)] bg-[var(--bg-main)] hover:bg-[var(--border-color)]/30 border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)] font-['Open_Sans'] transition-colors cursor-pointer">
+                        Cancelar
+                    </button>
+                    <button
+                        type="button"
+                        wire:click="removeFromLibrary"
+                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-[var(--radius-md)] bg-red-600 hover:bg-red-700 text-white text-xs font-semibold font-['Open_Sans'] shadow-md transition-colors cursor-pointer">
+                        <svg wire:loading wire:target="removeFromLibrary" class="animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Sim, Remover</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
