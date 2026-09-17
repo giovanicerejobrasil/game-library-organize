@@ -417,15 +417,8 @@
         <div
             wire:key="game-card-{{ $game->id }}"
             class="group relative flex flex-col bg-[var(--bg-card)] rounded-[var(--radius-md)] overflow-hidden border border-[var(--border-color)] hover:border-[var(--brand-primary)]/70 transition-colors duration-300">
-            <!-- Cover Image Container (Strict 2:3 Aspect Ratio with Resilient Skeleton Background) -->
-            <div class="relative w-full aspect-[2/3] overflow-hidden bg-[var(--bg-main)]">
-                <!-- Background Skeleton Shimmer (visible while heavy image is streaming) -->
-                <div class="absolute inset-0 bg-gradient-to-tr from-[var(--border-color)]/20 via-[var(--border-color)]/40 to-[var(--border-color)]/20 animate-pulse flex flex-col items-center justify-center text-[var(--text-muted)] pointer-events-none">
-                    <svg class="w-8 h-8 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                    </svg>
-                </div>
-
+            <!-- Cover Image Container (Strict 2:3 Aspect Ratio) -->
+            <div class="relative w-full aspect-[2/3] overflow-hidden bg-black/40">
                 <!-- Cover Image with Native Lazy Loading, Async Decoding & Instant Fallback -->
                 <img
                     src="{{ $coverUrl }}"
@@ -512,15 +505,14 @@
             class="p-3 sm:p-4 flex items-center justify-between gap-4 hover:bg-[var(--border-color)]/20 transition-colors cursor-pointer" wire:click="showGameModal({{ $game->id }})">
             <!-- Cover Thumbnail & Title -->
             <div class="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                <div class="relative w-12 h-16 sm:w-14 sm:h-20 aspect-[2/3] rounded-[var(--radius-sm)] overflow-hidden bg-[var(--bg-main)] flex-shrink-0">
-                    <div class="absolute inset-0 bg-[var(--border-color)]/30 animate-pulse pointer-events-none"></div>
+                <div class="relative w-12 h-16 sm:w-14 sm:h-20 aspect-[2/3] rounded-[var(--radius-sm)] overflow-hidden bg-black/40 flex-shrink-0">
                     <img
                         src="{{ $coverUrl }}"
                         alt="{{ $game->title }}"
                         loading="lazy"
                         decoding="async"
                         onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80';"
-                        class="relative z-10 w-full h-full object-cover" />
+                        class="w-full h-full object-cover" />
                 </div>
                 <div class="min-w-0">
                     <h3 class="font-bold text-sm sm:text-base text-[var(--text-main)] font-['Ubuntu'] truncate">

@@ -19,6 +19,6 @@
     class="inline-flex items-center gap-1.5 rounded-full text-white font-['Open_Sans'] shadow-sm transition-all {{ $sizeClasses }}"
     style="background-color: {{ $statusEnum->cssVariable() }};"
 >
-    <span class="w-1.5 h-1.5 rounded-full bg-white/80 animate-pulse"></span>
+    <span class="w-1.5 h-1.5 rounded-full bg-white/80"></span>
     {{ $statusEnum->label() }}
 </span>
