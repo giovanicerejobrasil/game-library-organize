@@ -77,10 +77,17 @@ class AddGame extends Component
 
     public ?string $selectedGameTitle = null;
 
-    public function mount(): void
+    public bool $isEditMode = false;
+
+    public function mount(?Game $game = null): void
     {
         $this->status = GameStatus::Backlog->value;
         $this->purchase_links = [];
+
+        if ($game && $game->exists) {
+            $this->isEditMode = true;
+            $this->selectCatalogGame($game->id);
+        }
     }
 
     /**
@@ -217,6 +224,16 @@ class AddGame extends Component
         $this->selected_libraries = $this->isPcSelected()
             ? $game->libraries->pluck('id')->all()
             : [];
+
+        $this->purchase_links = [];
+        if (is_array($game->purchase_links)) {
+            foreach ($game->purchase_links as $store => $url) {
+                $this->purchase_links[] = [
+                    'store' => (string) $store,
+                    'url' => (string) $url,
+                ];
+            }
+        }
 
         // Se o usuário já possuir registro deste jogo, carrega as informações pessoais
         /** @var User $user */
@@ -369,13 +386,20 @@ class AddGame extends Component
             'review' => $this->review,
         ];
 
-        $gameService->createOrUpdateGameForUser(
+        $userGame = $gameService->createOrUpdateGameForUser(
             $user,
             $gameData,
             $userGameData,
             $this->cover_file,
             $this->background_file
         );
+
+        if ($this->isEditMode) {
+            session()->flash('status', 'Informações do jogo atualizadas com sucesso!');
+            $targetSlug = $userGame->game?->slug ?? Game::find($this->existing_game_id)?->slug ?? (string) $this->existing_game_id;
+
+            return $this->redirect(route('games.show', $targetSlug), navigate: true);
+        }
 
         session()->flash('status', 'Jogo adicionado à sua biblioteca com sucesso!');
 
@@ -394,6 +418,10 @@ class AddGame extends Component
         $availableLibraries = $gameService->getAvailableLibrariesForUser($userId);
         $availableGenres = $gameService->getAvailableGenres();
 
+        $pageTitle = $this->isEditMode
+            ? ($this->title !== '' ? "Editar Jogo: {$this->title}" : 'Editar Informações do Jogo')
+            : 'Adicionar Jogo à Biblioteca';
+
         return view('livewire.add-game', [
             'catalogResults' => $catalogResults,
             'availablePlatforms' => $availablePlatforms,
@@ -401,8 +429,9 @@ class AddGame extends Component
             'availableGenres' => $availableGenres,
             'statuses' => GameStatus::cases(),
             'isPcSelected' => $this->isPcSelected(),
+            'isEditMode' => $this->isEditMode,
         ])->layout('layouts.app', [
-            'title' => 'Adicionar Jogo à Biblioteca',
+            'title' => $pageTitle,
         ]);
     }
 }

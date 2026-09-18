@@ -107,43 +107,46 @@ class GameService
                     'genre' => ! empty($gameData['genre']) ? array_values(array_filter($gameData['genre'])) : null,
                 ]);
             } else {
-                // Atualiza atributos se informados para o jogo existente
+                // Atualiza atributos para o jogo existente
                 $updates = [];
-                if (! empty($gameData['cover_image'])) {
-                    $updates['cover_image'] = trim($gameData['cover_image']);
+                if (isset($gameData['title']) && trim($gameData['title']) !== '') {
+                    $updates['title'] = trim($gameData['title']);
                 }
-                if (! empty($gameData['background_image'])) {
-                    $updates['background_image'] = trim($gameData['background_image']);
+                if (array_key_exists('cover_image', $gameData)) {
+                    $updates['cover_image'] = ! empty($gameData['cover_image']) ? trim($gameData['cover_image']) : null;
                 }
-                if (! empty($gameData['synopsis'])) {
-                    $updates['synopsis'] = trim($gameData['synopsis']);
+                if (array_key_exists('background_image', $gameData)) {
+                    $updates['background_image'] = ! empty($gameData['background_image']) ? trim($gameData['background_image']) : null;
                 }
-                if (! empty($gameData['release_year'])) {
-                    $updates['release_year'] = (int) $gameData['release_year'];
+                if (array_key_exists('synopsis', $gameData)) {
+                    $updates['synopsis'] = ! empty($gameData['synopsis']) ? trim($gameData['synopsis']) : null;
                 }
-                if (! empty($gameData['developer'])) {
-                    $updates['developer'] = trim($gameData['developer']);
+                if (array_key_exists('release_year', $gameData)) {
+                    $updates['release_year'] = ! empty($gameData['release_year']) ? (int) $gameData['release_year'] : null;
                 }
-                if (! empty($gameData['publisher'])) {
-                    $updates['publisher'] = trim($gameData['publisher']);
+                if (array_key_exists('developer', $gameData)) {
+                    $updates['developer'] = ! empty($gameData['developer']) ? trim($gameData['developer']) : null;
                 }
-                if (! empty($gameData['trailer_url'])) {
-                    $updates['trailer_url'] = trim($gameData['trailer_url']);
+                if (array_key_exists('publisher', $gameData)) {
+                    $updates['publisher'] = ! empty($gameData['publisher']) ? trim($gameData['publisher']) : null;
                 }
-                if (isset($gameData['is_franchise'])) {
+                if (array_key_exists('trailer_url', $gameData)) {
+                    $updates['trailer_url'] = ! empty($gameData['trailer_url']) ? trim($gameData['trailer_url']) : null;
+                }
+                if (array_key_exists('is_franchise', $gameData)) {
                     $updates['is_franchise'] = (bool) $gameData['is_franchise'];
                 }
-                if (! empty($gameData['franchise_name'])) {
-                    $updates['franchise_name'] = trim($gameData['franchise_name']);
+                if (array_key_exists('franchise_name', $gameData)) {
+                    $updates['franchise_name'] = ! empty($gameData['franchise_name']) ? trim($gameData['franchise_name']) : null;
                 }
-                if (! empty($gameData['age_rating'])) {
-                    $updates['age_rating'] = trim($gameData['age_rating']);
+                if (array_key_exists('age_rating', $gameData)) {
+                    $updates['age_rating'] = ! empty($gameData['age_rating']) ? trim((string) $gameData['age_rating']) : null;
                 }
-                if (! empty($gameData['genre'])) {
-                    $updates['genre'] = array_values(array_filter($gameData['genre']));
+                if (array_key_exists('genre', $gameData)) {
+                    $updates['genre'] = ! empty($gameData['genre']) ? array_values(array_filter($gameData['genre'])) : null;
                 }
-                if (! empty($gameData['purchase_links'])) {
-                    $updates['purchase_links'] = $gameData['purchase_links'];
+                if (array_key_exists('purchase_links', $gameData)) {
+                    $updates['purchase_links'] = ! empty($gameData['purchase_links']) ? $gameData['purchase_links'] : null;
                 }
 
                 if (! empty($updates)) {
@@ -190,7 +193,7 @@ class GameService
             );
 
             // Sincroniza imediatamente com o Elasticsearch
-            $this->searchService->indexGame($game);
+            $this->searchService->indexGame($game->fresh(['platforms', 'libraries']) ?? $game);
 
             return $userGame;
         });

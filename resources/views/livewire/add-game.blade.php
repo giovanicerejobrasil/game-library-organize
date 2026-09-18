@@ -10,20 +10,20 @@
                     <span>Minha Biblioteca</span>
                 </a>
                 <span>/</span>
-                <span class="text-[var(--text-main)] font-semibold">Adicionar Jogo</span>
+                <span class="text-[var(--text-main)] font-semibold">{{ $isEditMode ? 'Editar Jogo' : 'Adicionar Jogo' }}</span>
             </div>
 
             <h1 class="text-2xl sm:text-3xl font-bold font-['Ubuntu'] text-[var(--text-main)] tracking-tight">
-                Adicionar Jogo à Biblioteca
+                {{ $isEditMode ? 'Editar Informações do Jogo' : 'Adicionar Jogo à Biblioteca' }}
             </h1>
             <p class="text-xs sm:text-sm text-[var(--text-muted)] font-['Roboto'] mt-1.5">
-                Cadastre um novo título ou importe do catálogo e registre seu progresso, horas e avaliação.
+                {{ $isEditMode ? 'Edite as informações globais do jogo, plataformas, bibliotecas e seu progresso pessoal.' : 'Cadastre um novo título ou importe do catálogo e registre seu progresso, horas e avaliação.' }}
             </p>
         </div>
 
         <div>
             <a
-                href="{{ route('dashboard') }}"
+                href="{{ $isEditMode ? route('games.show', $existing_game_id) : route('dashboard') }}"
                 class="px-4 py-2 text-xs sm:text-sm font-semibold rounded-[var(--radius-md)] bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--brand-primary)] hover:shadow-[var(--glow-retro)] transition-all font-['Open_Sans'] flex items-center gap-1.5 cursor-pointer shadow-sm">
                 <svg class="w-4 h-4 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -33,6 +33,7 @@
         </div>
     </div>
 
+    @if (! $isEditMode)
     <!-- Quick Catalog Search & Autofill Banner -->
     <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[var(--radius-lg)] p-5 sm:p-6 relative shadow-sm space-y-3">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -118,6 +119,7 @@
         </div>
         @endif
     </div>
+    @endif
 
     <!-- Main Form & Live Preview Grid -->
     <form wire:submit.prevent="save" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -788,7 +790,7 @@
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                 </svg>
-                <span>Salvar Jogo na Biblioteca</span>
+                <span>{{ $isEditMode ? 'Salvar Alterações' : 'Salvar Jogo na Biblioteca' }}</span>
             </button>
         </div>
 </div>

@@ -5,23 +5,23 @@
 
     // Resolução da Classificação Indicativa do Brasil (ClassInd) via AgeRating Enum
     $ageRating = $game->age_rating instanceof \App\Enums\AgeRating
-        ? $game->age_rating
-        : \App\Enums\AgeRating::tryFromLenient(is_string($game->age_rating) ? $game->age_rating : null);
+    ? $game->age_rating
+    : \App\Enums\AgeRating::tryFromLenient(is_string($game->age_rating) ? $game->age_rating : null);
 
     $ratingData = $ageRating ? [
-        'bg' => $ageRating->colors()['bg'],
-        'text' => $ageRating->colors()['text'],
-        'label' => $ageRating->shortLabel(),
-        'full_label' => $ageRating->label(),
+    'bg' => $ageRating->colors()['bg'],
+    'text' => $ageRating->colors()['text'],
+    'label' => $ageRating->shortLabel(),
+    'full_label' => $ageRating->label(),
     ] : null;
 
     // Mapeamento das Cores Oficiais das Plataformas e Bibliotecas Digitais
     $platformColor = function (string $name, string $slug): array {
-        return \App\Models\Platform::resolveColors($name, $slug);
+    return \App\Models\Platform::resolveColors($name, $slug);
     };
 
     $libraryColor = function (string $name, string $slug): array {
-        return \App\Models\GameLibrary::resolveColors($name, $slug);
+    return \App\Models\GameLibrary::resolveColors($name, $slug);
     };
     @endphp
 
@@ -49,14 +49,26 @@
                 <span>Voltar para Minha Biblioteca</span>
             </a>
 
-            @if ($inUserLibrary)
-            <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold font-['Open_Sans'] backdrop-blur-md shadow-sm">
-                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                </svg>
-                <span>Na sua biblioteca</span>
+            <div class="flex items-center justify-end gap-3">
+                @if ($inUserLibrary)
+                <div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-semibold font-['Open_Sans'] backdrop-blur-md shadow-sm">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Na sua biblioteca</span>
+                </div>
+                @endif
+
+                <a
+                    href="{{ route('games.edit', $game->slug) }}"
+                    wire:navigate
+                    class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 text-xs font-semibold font-['Open_Sans'] backdrop-blur-md shadow-sm transition-all hover:scale-105 cursor-pointer">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <span>Editar Jogo</span>
+                </a>
             </div>
-            @endif
         </div>
     </div>
 
@@ -403,7 +415,7 @@
                                     class="inline-flex items-center gap-2 px-3 py-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-[var(--radius-md)] h-[44px] shadow-xs">
                                     <div class="flex items-center gap-0.5">
                                         @for ($star = 1; $star <= 5; $star++)
-                                        <div
+                                            <div
                                             wire:key="interactive-detail-star-{{ $star }}"
                                             class="relative w-6 h-6 flex items-center justify-center select-none">
                                             <!-- Base Gray/Empty Star -->
@@ -444,126 +456,126 @@
                                                 wire:click="setRating({{ $star }})"
                                                 class="absolute inset-y-0 right-0 w-1/2 cursor-pointer z-10 focus:outline-none"
                                                 title="Nota {{ $star }}"></button>
-                                        </div>
-                                        @endfor
                                     </div>
-
-                                    <!-- Clear Button -->
-                                    <button
-                                        type="button"
-                                        x-show="current > 0"
-                                        wire:click="setRating(0)"
-                                        @click="hoverRating = null"
-                                        class="text-[11px] text-[var(--text-muted)] hover:text-red-400 font-['Roboto'] ml-1.5 px-1.5 py-0.5 rounded transition-colors cursor-pointer"
-                                        style="{{ ($rating !== null && $rating > 0) ? '' : 'display: none;' }}">
-                                        Limpar
-                                    </button>
+                                    @endfor
                                 </div>
-                                @error('rating')
-                                <span class="text-xs text-red-500 mt-1.5 block font-['Roboto']">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
 
-                        <!-- Personal Review Textarea -->
-                        <div>
-                            <label for="review" class="block text-xs font-semibold text-[var(--text-muted)] font-['Open_Sans'] uppercase tracking-wider mb-2">
-                                Review / Minhas Anotações Pessoais
-                            </label>
-                            <textarea
-                                id="review"
-                                wire:model="review"
-                                rows="4"
-                                placeholder="Escreva suas impressões, história, pontos positivos e negativos sobre o jogo..."
-                                class="w-full px-3.5 py-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-[var(--radius-md)] text-sm text-[var(--text-main)] placeholder-[var(--text-muted)]/60 focus:outline-none focus:border-[var(--brand-primary)] font-['Roboto'] resize-none"></textarea>
-                            @error('review')
+                                <!-- Clear Button -->
+                                <button
+                                    type="button"
+                                    x-show="current > 0"
+                                    wire:click="setRating(0)"
+                                    @click="hoverRating = null"
+                                    class="text-[11px] text-[var(--text-muted)] hover:text-red-400 font-['Roboto'] ml-1.5 px-1.5 py-0.5 rounded transition-colors cursor-pointer"
+                                    style="{{ ($rating !== null && $rating > 0) ? '' : 'display: none;' }}">
+                                    Limpar
+                                </button>
+                            </div>
+                            @error('rating')
                             <span class="text-xs text-red-500 mt-1.5 block font-['Roboto']">{{ $message }}</span>
                             @enderror
                         </div>
-
-                        <!-- Actions Row at the Bottom: Remove Button on the left & Save Button on the right -->
-                        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[var(--border-color)]/60">
-                            <div>
-                                @if ($inUserLibrary)
-                                <button
-                                    type="button"
-                                    wire:click="confirmRemoval"
-                                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-[var(--radius-md)] bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 text-xs font-semibold font-['Open_Sans'] cursor-pointer transition-all">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                    <span>Remover da Biblioteca</span>
-                                </button>
-                                @endif
-                            </div>
-
-                            <button
-                                type="submit"
-                                class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-[var(--radius-md)] bg-[var(--brand-primary)] hover:brightness-110 text-white font-semibold text-sm font-['Open_Sans'] shadow-md cursor-pointer transition-all w-full sm:w-auto">
-                                <svg wire:loading wire:target="saveUserProgress" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <span>{{ $inUserLibrary ? 'Salvar Alterações' : 'Salvar na Minha Biblioteca' }}</span>
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Confirmação de Exclusão Posicionado no Topo da Tela -->
-    @if ($showDeleteModal)
-    <div
-        class="fixed inset-0 z-50 overflow-y-auto"
-        role="dialog"
-        aria-modal="true"
-        @keydown.escape.window="$wire.cancelRemoval()">
-        <!-- Backdrop -->
-        <div class="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity" wire:click="cancelRemoval"></div>
-
-        <!-- Modal Card Posicionado no Topo -->
-        <div class="relative min-h-screen flex items-start justify-center pt-8 sm:pt-14 px-4 pb-6">
-            <div class="relative max-w-md w-full bg-[var(--bg-card)] border border-red-500/40 rounded-[var(--radius-lg)] p-6 shadow-2xl space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
-                <!-- Modal Header com Ícone de Alerta -->
-                <div class="flex items-start gap-3.5">
-                    <div class="p-2.5 rounded-full bg-red-500/15 border border-red-500/30 text-red-400 shrink-0">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                        </svg>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <h3 class="text-base font-bold font-['Ubuntu'] text-[var(--text-main)] leading-tight">
-                            Remover da Biblioteca?
-                        </h3>
-                        <p class="text-xs text-[var(--text-muted)] font-['Roboto'] mt-1.5 leading-relaxed">
-                            Tem certeza de que deseja remover <strong class="text-[var(--text-main)]">{{ $game->title }}</strong> da sua biblioteca? Seu histórico de horas jogadas, status e avaliações registradas serão excluídos.
-                        </p>
-                    </div>
                 </div>
 
-                <!-- Modal Actions -->
-                <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-[var(--border-color)]/60">
+                <!-- Personal Review Textarea -->
+                <div>
+                    <label for="review" class="block text-xs font-semibold text-[var(--text-muted)] font-['Open_Sans'] uppercase tracking-wider mb-2">
+                        Review / Minhas Anotações Pessoais
+                    </label>
+                    <textarea
+                        id="review"
+                        wire:model="review"
+                        rows="4"
+                        placeholder="Escreva suas impressões, história, pontos positivos e negativos sobre o jogo..."
+                        class="w-full px-3.5 py-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-[var(--radius-md)] text-sm text-[var(--text-main)] placeholder-[var(--text-muted)]/60 focus:outline-none focus:border-[var(--brand-primary)] font-['Roboto'] resize-none"></textarea>
+                    @error('review')
+                    <span class="text-xs text-red-500 mt-1.5 block font-['Roboto']">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <!-- Actions Row at the Bottom: Remove Button on the left & Save Button on the right -->
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[var(--border-color)]/60">
+                    <div>
+                        @if ($inUserLibrary)
+                        <button
+                            type="button"
+                            wire:click="confirmRemoval"
+                            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-[var(--radius-md)] bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 border border-red-500/30 text-xs font-semibold font-['Open_Sans'] cursor-pointer transition-all">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            <span>Remover da Biblioteca</span>
+                        </button>
+                        @endif
+                    </div>
+
                     <button
-                        type="button"
-                        wire:click="cancelRemoval"
-                        class="px-4 py-2 rounded-[var(--radius-md)] bg-[var(--bg-main)] hover:bg-[var(--border-color)]/30 border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)] font-['Open_Sans'] transition-colors cursor-pointer">
-                        Cancelar
-                    </button>
-                    <button
-                        type="button"
-                        wire:click="removeFromLibrary"
-                        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-[var(--radius-md)] bg-red-600 hover:bg-red-700 text-white text-xs font-semibold font-['Open_Sans'] shadow-md transition-colors cursor-pointer">
-                        <svg wire:loading wire:target="removeFromLibrary" class="animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                        type="submit"
+                        class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-[var(--radius-md)] bg-[var(--brand-primary)] hover:brightness-110 text-white font-semibold text-sm font-['Open_Sans'] shadow-md cursor-pointer transition-all w-full sm:w-auto">
+                        <svg wire:loading wire:target="saveUserProgress" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
-                        <span>Sim, Remover</span>
+                        <span>{{ $inUserLibrary ? 'Salvar Alterações' : 'Salvar na Minha Biblioteca' }}</span>
                     </button>
                 </div>
+                </form>
             </div>
         </div>
     </div>
-    @endif
+</div>
+
+<!-- Modal de Confirmação de Exclusão Posicionado no Topo da Tela -->
+@if ($showDeleteModal)
+<div
+    class="fixed inset-0 z-50 overflow-y-auto"
+    role="dialog"
+    aria-modal="true"
+    @keydown.escape.window="$wire.cancelRemoval()">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity" wire:click="cancelRemoval"></div>
+
+    <!-- Modal Card Posicionado no Topo -->
+    <div class="relative min-h-screen flex items-start justify-center pt-8 sm:pt-14 px-4 pb-6">
+        <div class="relative max-w-md w-full bg-[var(--bg-card)] border border-red-500/40 rounded-[var(--radius-lg)] p-6 shadow-2xl space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+            <!-- Modal Header com Ícone de Alerta -->
+            <div class="flex items-start gap-3.5">
+                <div class="p-2.5 rounded-full bg-red-500/15 border border-red-500/30 text-red-400 shrink-0">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="text-base font-bold font-['Ubuntu'] text-[var(--text-main)] leading-tight">
+                        Remover da Biblioteca?
+                    </h3>
+                    <p class="text-xs text-[var(--text-muted)] font-['Roboto'] mt-1.5 leading-relaxed">
+                        Tem certeza de que deseja remover <strong class="text-[var(--text-main)]">{{ $game->title }}</strong> da sua biblioteca? Seu histórico de horas jogadas, status e avaliações registradas serão excluídos.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Modal Actions -->
+            <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-[var(--border-color)]/60">
+                <button
+                    type="button"
+                    wire:click="cancelRemoval"
+                    class="px-4 py-2 rounded-[var(--radius-md)] bg-[var(--bg-main)] hover:bg-[var(--border-color)]/30 border border-[var(--border-color)] text-xs font-semibold text-[var(--text-main)] font-['Open_Sans'] transition-colors cursor-pointer">
+                    Cancelar
+                </button>
+                <button
+                    type="button"
+                    wire:click="removeFromLibrary"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-[var(--radius-md)] bg-red-600 hover:bg-red-700 text-white text-xs font-semibold font-['Open_Sans'] shadow-md transition-colors cursor-pointer">
+                    <svg wire:loading wire:target="removeFromLibrary" class="animate-spin w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Sim, Remover</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 </div>
