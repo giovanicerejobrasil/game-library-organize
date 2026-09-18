@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\AgeRating;
 use Database\Factories\GameFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -25,7 +27,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $trailer_url
  * @property bool $is_franchise
  * @property string|null $franchise_name
- * @property string|null $age_rating
+ * @property AgeRating|null $age_rating
  * @property array<string, string>|null $purchase_links
  * @property array<int, string>|null $genre
  * @property Carbon|null $created_at
@@ -63,6 +65,23 @@ class Game extends Model
             'purchase_links' => 'array',
             'genre' => 'array',
         ];
+    }
+
+    /**
+     * Classificação indicativa oficial com cast e resolução leniente para AgeRating Enum
+     *
+     * @return Attribute<AgeRating|null, string|AgeRating|null>
+     */
+    protected function ageRating(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value): ?AgeRating => $value instanceof AgeRating
+                ? $value
+                : (is_string($value) ? AgeRating::tryFromLenient($value) : null),
+            set: fn ($value): ?string => $value instanceof AgeRating
+                ? $value->value
+                : (is_string($value) ? (AgeRating::tryFromLenient($value)?->value ?? trim($value)) : null),
+        );
     }
 
     /**

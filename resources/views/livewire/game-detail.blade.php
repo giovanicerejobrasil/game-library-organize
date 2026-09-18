@@ -3,23 +3,17 @@
     $coverUrl = $game->cover_image ?? 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80';
     $bgUrl = $game->background_image ?? $coverUrl;
 
-    // Mapeamento das Cores Oficiais da Classificação Indicativa do Brasil (ClassInd)
-    $ageRatingConfig = function (?string $rating): ?array {
-        if (! $rating) {
-            return null;
-        }
-        $clean = trim($rating);
-        return match($clean) {
-            'Livre' => ['bg' => '#338933', 'text' => '#ffffff', 'label' => 'Livre'],
-            '10', '10+' => ['bg' => '#2474B9', 'text' => '#ffffff', 'label' => $clean],
-            '12', '12+' => ['bg' => '#FFCC00', 'text' => '#000000', 'label' => $clean],
-            '14', '14+' => ['bg' => '#DB772C', 'text' => '#ffffff', 'label' => $clean],
-            '16', '16+' => ['bg' => '#C90000', 'text' => '#ffffff', 'label' => $clean],
-            '18', '18+' => ['bg' => '#000000', 'text' => '#ffffff', 'label' => $clean],
-            default => ['bg' => '#2a2a3b', 'text' => '#fafafa', 'label' => $clean],
-        };
-    };
-    $ratingData = $ageRatingConfig($game->age_rating);
+    // Resolução da Classificação Indicativa do Brasil (ClassInd) via AgeRating Enum
+    $ageRating = $game->age_rating instanceof \App\Enums\AgeRating
+        ? $game->age_rating
+        : \App\Enums\AgeRating::tryFromLenient(is_string($game->age_rating) ? $game->age_rating : null);
+
+    $ratingData = $ageRating ? [
+        'bg' => $ageRating->colors()['bg'],
+        'text' => $ageRating->colors()['text'],
+        'label' => $ageRating->shortLabel(),
+        'full_label' => $ageRating->label(),
+    ] : null;
 
     // Mapeamento das Cores Oficiais das Plataformas e Bibliotecas Digitais
     $platformColor = function (string $name, string $slug): array {

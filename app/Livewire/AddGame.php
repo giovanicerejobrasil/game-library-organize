@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire;
 
+use App\Enums\AgeRating;
 use App\Enums\GameStatus;
 use App\Models\Game;
 use App\Models\Platform;
@@ -44,7 +45,7 @@ class AddGame extends Component
 
     public string $franchise_name = '';
 
-    public string $age_rating = '';
+    public ?string $age_rating = null;
 
     /** @var array<int, string> */
     public array $selected_genres = [];
@@ -208,7 +209,9 @@ class AddGame extends Component
         $this->trailer_url = $game->trailer_url ?? '';
         $this->is_franchise = (bool) $game->is_franchise;
         $this->franchise_name = $game->franchise_name ?? '';
-        $this->age_rating = $game->age_rating ?? '';
+        $this->age_rating = $game->age_rating instanceof AgeRating
+            ? $game->age_rating->value
+            : ($game->age_rating ?? '');
         $this->selected_genres = is_array($game->genre) ? $game->genre : [];
         $this->selected_platforms = $game->platforms->pluck('id')->all();
         $this->selected_libraries = $this->isPcSelected()
@@ -251,7 +254,7 @@ class AddGame extends Component
         $this->trailer_url = '';
         $this->is_franchise = false;
         $this->franchise_name = '';
-        $this->age_rating = '';
+        $this->age_rating = null;
         $this->selected_genres = [];
         $this->custom_genre = '';
         $this->purchase_links = [];
@@ -272,6 +275,10 @@ class AddGame extends Component
      */
     public function save(GameService $gameService)
     {
+        if ($this->age_rating === '') {
+            $this->age_rating = null;
+        }
+
         $rules = [
             'title' => ['required', 'string', 'min:2', 'max:255'],
             'release_year' => ['nullable', 'integer', 'min:1970', 'max:2035'],
@@ -285,7 +292,7 @@ class AddGame extends Component
             'synopsis' => ['nullable', 'string', 'max:5000'],
             'is_franchise' => ['boolean'],
             'franchise_name' => ['nullable', 'string', 'max:255'],
-            'age_rating' => ['nullable', 'string', 'max:50'],
+            'age_rating' => ['nullable', Rule::enum(AgeRating::class)],
             'selected_genres' => ['nullable', 'array'],
             'selected_platforms' => ['nullable', 'array'],
             'selected_libraries' => ['nullable', 'array'],

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\Elasticsearch;
 
+use App\Enums\AgeRating;
 use App\Models\Game;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
@@ -153,7 +154,7 @@ class GameSearchService
             'cover_image' => $game->cover_image,
             'background_image' => $game->background_image,
             'trailer_url' => $game->trailer_url,
-            'age_rating' => $game->age_rating,
+            'age_rating' => $game->age_rating instanceof AgeRating ? $game->age_rating->value : $game->age_rating,
             'created_at' => $game->created_at?->toISOString(),
         ];
 

@@ -98,8 +98,14 @@
                             </p>
                         </div>
                     </div>
-                    <span class="text-xs font-semibold text-[var(--brand-primary)] font-['Open_Sans']">
-                        Selecionar →
+                    <span class="text-xs font-semibold text-(--text-main) font-['Open_Sans']">
+                        <div class="flex items-center gap-1">
+                            <span>Selecionar&nbsp;</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right">
+                                <path d="M5 12h14" />
+                                <path d="m12 5 7 7-7 7" />
+                            </svg>
+                        </div>
                     </span>
                 </button>
                 @endforeach
@@ -379,8 +385,8 @@
                     <div class="flex flex-wrap gap-2.5">
                         @foreach ($availableLibraries as $lib)
                         @php
-                            $libCol = $lib->brand_colors;
-                            $isSelected = in_array($lib->id, $selected_libraries);
+                        $libCol = $lib->brand_colors;
+                        $isSelected = in_array($lib->id, $selected_libraries);
                         @endphp
                         <label
                             wire:key="library-chip-{{ $lib->id }}"
@@ -471,7 +477,7 @@
                     </div>
 
                     @php
-                        $customGenresList = array_diff($selected_genres, $availableGenres);
+                    $customGenresList = array_diff($selected_genres, $availableGenres);
                     @endphp
                     @if (count($customGenresList) > 0)
                     <div class="mt-3 space-y-1.5">
@@ -531,12 +537,9 @@
                             wire:model.live="age_rating"
                             class="w-full px-3.5 py-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-[var(--radius-md)] text-xs sm:text-sm text-[var(--text-main)] focus:outline-none focus:border-[var(--brand-primary)] font-['Roboto'] cursor-pointer">
                             <option value="">Não informada</option>
-                            <option value="Livre">Livre (Todos os públicos)</option>
-                            <option value="10+">10+ (Não recomendado para menores de 10 anos)</option>
-                            <option value="12+">12+ (Não recomendado para menores de 12 anos)</option>
-                            <option value="14+">14+ (Não recomendado para menores de 14 anos)</option>
-                            <option value="16+">16+ (Não recomendado para menores de 16 anos)</option>
-                            <option value="18+">18+ (Não recomendado para menores de 18 anos)</option>
+                            @foreach (\App\Enums\AgeRating::cases() as $ratingOption)
+                            <option value="{{ $ratingOption->value }}">{{ $ratingOption->label() }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
@@ -682,7 +685,7 @@
                             class="inline-flex items-center gap-2 px-3 py-2 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-[var(--radius-md)] h-[44px] shadow-xs">
                             <div class="flex items-center gap-0.5">
                                 @for ($star = 1; $star <= 5; $star++)
-                                <div
+                                    <div
                                     wire:key="interactive-star-{{ $star }}"
                                     class="relative w-6 h-6 flex items-center justify-center select-none">
                                     <!-- Base Gray/Empty Star -->
@@ -723,215 +726,215 @@
                                         wire:click="setRating({{ $star }})"
                                         class="absolute inset-y-0 right-0 w-1/2 cursor-pointer z-10 focus:outline-none"
                                         title="Nota {{ $star }}"></button>
-                                </div>
-                                @endfor
                             </div>
-
-                            <!-- Clear Button -->
-                            <button
-                                type="button"
-                                x-show="current > 0"
-                                wire:click="$set('rating', null)"
-                                @click="hoverRating = null"
-                                class="text-[11px] text-[var(--text-muted)] hover:text-red-400 font-['Roboto'] ml-1.5 px-1.5 py-0.5 rounded transition-colors cursor-pointer"
-                                style="{{ ($rating !== null && $rating > 0) ? '' : 'display: none;' }}">
-                                Limpar
-                            </button>
+                            @endfor
                         </div>
-                        @error('rating')
-                        <span class="text-xs text-red-500 mt-1.5 block font-['Roboto']">{{ $message }}</span>
-                        @enderror
-                    </div>
-                </div>
 
-                <!-- Written Review (Non-resizable) -->
-                <div>
-                    <label for="review" class="block text-xs font-semibold text-[var(--text-muted)] font-['Open_Sans'] uppercase tracking-wider mb-2">
-                        Avaliação por Escrito / Review Pessoal
-                    </label>
-                    <textarea
-                        id="review"
-                        rows="5"
-                        wire:model="review"
-                        placeholder="Escreva suas impressões, pontos fortes e fracos, história, gameplay e conclusões sobre o jogo..."
-                        class="w-full px-3.5 py-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-[var(--radius-md)] text-sm text-[var(--text-main)] placeholder-[var(--text-muted)]/60 focus:outline-none focus:border-[var(--brand-primary)] font-['Roboto'] resize-none leading-relaxed transition-all"></textarea>
-                    @error('review')
+                        <!-- Clear Button -->
+                        <button
+                            type="button"
+                            x-show="current > 0"
+                            wire:click="$set('rating', null)"
+                            @click="hoverRating = null"
+                            class="text-[11px] text-[var(--text-muted)] hover:text-red-400 font-['Roboto'] ml-1.5 px-1.5 py-0.5 rounded transition-colors cursor-pointer"
+                            style="{{ ($rating !== null && $rating > 0) ? '' : 'display: none;' }}">
+                            Limpar
+                        </button>
+                    </div>
+                    @error('rating')
                     <span class="text-xs text-red-500 mt-1.5 block font-['Roboto']">{{ $message }}</span>
                     @enderror
                 </div>
             </div>
-            @endif
 
-            <!-- Submit & Action Buttons (Separated with generous top margin) -->
-            <div class="mt-8 pt-6 border-t border-[var(--border-color)]/60 flex items-center justify-end gap-3 sm:gap-4">
-                <!-- Cancel Button identical to top button -->
-                <a
-                    href="{{ route('dashboard') }}"
-                    class="px-4 py-2 text-xs sm:text-sm font-semibold rounded-[var(--radius-md)] bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--brand-primary)] hover:shadow-[var(--glow-retro)] transition-all font-['Open_Sans'] flex items-center gap-1.5 cursor-pointer shadow-sm">
-                    <svg class="w-4 h-4 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    <span>Cancelar</span>
-                </a>
-
-                <button
-                    type="submit"
-                    wire:loading.attr="disabled"
-                    class="px-6 py-2.5 text-xs sm:text-sm font-semibold rounded-[var(--radius-md)] bg-[var(--brand-primary)] text-white shadow-md hover:opacity-90 hover:shadow-[var(--glow-retro)] hover:-translate-y-0.5 transition-all font-['Open_Sans'] flex items-center gap-2 cursor-pointer disabled:opacity-50">
-                    <svg wire:loading.remove wire:target="save" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    <svg wire:loading wire:target="save" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-                    </svg>
-                    <span>Salvar Jogo na Biblioteca</span>
-                </button>
+            <!-- Written Review (Non-resizable) -->
+            <div>
+                <label for="review" class="block text-xs font-semibold text-[var(--text-muted)] font-['Open_Sans'] uppercase tracking-wider mb-2">
+                    Avaliação por Escrito / Review Pessoal
+                </label>
+                <textarea
+                    id="review"
+                    rows="5"
+                    wire:model="review"
+                    placeholder="Escreva suas impressões, pontos fortes e fracos, história, gameplay e conclusões sobre o jogo..."
+                    class="w-full px-3.5 py-2.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-[var(--radius-md)] text-sm text-[var(--text-main)] placeholder-[var(--text-muted)]/60 focus:outline-none focus:border-[var(--brand-primary)] font-['Roboto'] resize-none leading-relaxed transition-all"></textarea>
+                @error('review')
+                <span class="text-xs text-red-500 mt-1.5 block font-['Roboto']">{{ $message }}</span>
+                @enderror
             </div>
         </div>
+        @endif
 
-        <!-- Right Side: Live Interactive Card Preview (Constrained to Realistic Card Dimensions) -->
-        <div class="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
-            <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[var(--radius-lg)] p-5 shadow-sm space-y-4">
-                <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
-                    <span class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider font-['Open_Sans']">
-                        Pré-visualização do Card
-                    </span>
-                    <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold font-['Open_Sans'] shadow-xs">
-                        Tamanho Real
-                    </span>
+        <!-- Submit & Action Buttons (Separated with generous top margin) -->
+        <div class="mt-8 pt-6 border-t border-[var(--border-color)]/60 flex items-center justify-end gap-3 sm:gap-4">
+            <!-- Cancel Button identical to top button -->
+            <a
+                href="{{ route('dashboard') }}"
+                class="px-4 py-2 text-xs sm:text-sm font-semibold rounded-[var(--radius-md)] bg-[var(--bg-card)] border border-[var(--border-color)] text-[var(--text-main)] hover:border-[var(--brand-primary)] hover:shadow-[var(--glow-retro)] transition-all font-['Open_Sans'] flex items-center gap-1.5 cursor-pointer shadow-sm">
+                <svg class="w-4 h-4 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>Cancelar</span>
+            </a>
+
+            <button
+                type="submit"
+                wire:loading.attr="disabled"
+                class="px-6 py-2.5 text-xs sm:text-sm font-semibold rounded-[var(--radius-md)] bg-[var(--brand-primary)] text-white shadow-md hover:opacity-90 hover:shadow-[var(--glow-retro)] hover:-translate-y-0.5 transition-all font-['Open_Sans'] flex items-center gap-2 cursor-pointer disabled:opacity-50">
+                <svg wire:loading.remove wire:target="save" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <svg wire:loading wire:target="save" class="animate-spin w-4 h-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span>Salvar Jogo na Biblioteca</span>
+            </button>
+        </div>
+</div>
+
+<!-- Right Side: Live Interactive Card Preview (Constrained to Realistic Card Dimensions) -->
+<div class="lg:col-span-4 lg:sticky lg:top-24 space-y-4">
+    <div class="bg-[var(--bg-card)] border border-[var(--border-color)] rounded-[var(--radius-lg)] p-5 shadow-sm space-y-4">
+        <div class="flex items-center justify-between border-b border-[var(--border-color)] pb-3">
+            <span class="text-xs font-semibold text-[var(--text-muted)] uppercase tracking-wider font-['Open_Sans']">
+                Pré-visualização do Card
+            </span>
+            <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold font-['Open_Sans'] shadow-xs">
+                Tamanho Real
+            </span>
+        </div>
+
+        <!-- Game Card Preview (Constrained to Realistic Max-Width ~220px) -->
+        @php
+        $previewCover = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80';
+        if ($cover_file) {
+        try {
+        $previewCover = $cover_file->temporaryUrl();
+        } catch (\Throwable) {
+        $previewCover = !empty($cover_image) ? $cover_image : $previewCover;
+        }
+        } elseif (!empty($cover_image)) {
+        $previewCover = $cover_image;
+        }
+        @endphp
+
+        <div class="max-w-[220px] w-full mx-auto">
+            <div class="group relative flex flex-col bg-[var(--bg-main)] rounded-[var(--radius-md)] overflow-hidden border border-[var(--border-color)] shadow-md">
+                <!-- Cover Image Container (Strict 2:3 Aspect Ratio) -->
+                <div class="relative w-full aspect-[2/3] overflow-hidden bg-black/40">
+                    <img
+                        src="{{ $previewCover }}"
+                        alt="{{ $title ?: 'Novo Jogo' }}"
+                        onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80';"
+                        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+
+                    <div class="absolute inset-0 z-10 bg-gradient-to-t from-[var(--bg-card)] via-transparent to-black/40 transition-none pointer-events-none"></div>
+
+                    <!-- Status Badge Top Right (Se selecionado jogo existente) -->
+                    @if ($existing_game_id && $status)
+                    <div class="absolute top-2 right-2 z-10 drop-shadow-md">
+                        <x-game.status-badge :status="$status" size="sm" />
+                    </div>
+                    @endif
+
+                    <!-- Release Year Top Left -->
+                    @if ($release_year)
+                    <div class="absolute top-2 left-2 z-10">
+                        <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-black/75 text-white/90 rounded-[var(--radius-sm)]">
+                            {{ $release_year }}
+                        </span>
+                    </div>
+                    @endif
                 </div>
 
-                <!-- Game Card Preview (Constrained to Realistic Max-Width ~220px) -->
-                @php
-                $previewCover = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80';
-                if ($cover_file) {
-                try {
-                $previewCover = $cover_file->temporaryUrl();
-                } catch (\Throwable) {
-                $previewCover = !empty($cover_image) ? $cover_image : $previewCover;
-                }
-                } elseif (!empty($cover_image)) {
-                $previewCover = $cover_image;
-                }
-                @endphp
-
-                <div class="max-w-[220px] w-full mx-auto">
-                    <div class="group relative flex flex-col bg-[var(--bg-main)] rounded-[var(--radius-md)] overflow-hidden border border-[var(--border-color)] shadow-md">
-                        <!-- Cover Image Container (Strict 2:3 Aspect Ratio) -->
-                        <div class="relative w-full aspect-[2/3] overflow-hidden bg-black/40">
-                            <img
-                                src="{{ $previewCover }}"
-                                alt="{{ $title ?: 'Novo Jogo' }}"
-                                onerror="this.src='https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80';"
-                                class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-
-                            <div class="absolute inset-0 z-10 bg-gradient-to-t from-[var(--bg-card)] via-transparent to-black/40 transition-none pointer-events-none"></div>
-
-                            <!-- Status Badge Top Right (Se selecionado jogo existente) -->
-                            @if ($existing_game_id && $status)
-                            <div class="absolute top-2 right-2 z-10 drop-shadow-md">
-                                <x-game.status-badge :status="$status" size="sm" />
-                            </div>
-                            @endif
-
-                            <!-- Release Year Top Left -->
-                            @if ($release_year)
-                            <div class="absolute top-2 left-2 z-10">
-                                <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-black/75 text-white/90 rounded-[var(--radius-sm)]">
-                                    {{ $release_year }}
-                                </span>
-                            </div>
-                            @endif
-                        </div>
-
-                        <!-- Card Body -->
-                        <div class="p-3 flex flex-col justify-between flex-1 gap-1.5 bg-[var(--bg-card)]">
-                            <div>
-                                <h3 class="font-bold text-xs sm:text-sm text-[var(--text-main)] font-['Ubuntu'] leading-snug line-clamp-1">
-                                    {{ $title !== '' ? $title : 'Título do Jogo' }}
-                                </h3>
-                                <p class="text-[11px] text-[var(--text-muted)] font-['Roboto'] line-clamp-1 mt-0.5">
-                                    {{ $developer !== '' ? $developer : 'Desenvolvedora' }}
-                                </p>
-                            </div>
-
-                            <!-- Card Footer -->
-                            <div class="flex items-center justify-between gap-1 pt-2 border-t border-[var(--border-color)]/60 text-xs">
-                                <x-game.star-rating :rating="$rating ?? 0.0" size="sm" :showNumber="true" />
-
-                                @if ((float) $hours_played > 0)
-                                <span class="text-[10px] font-medium text-[var(--text-muted)] font-['Roboto'] flex items-center gap-0.5">
-                                    <svg class="w-3 h-3 text-[var(--brand-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    {{ number_format((float) $hours_played, 1) }}h
-                                </span>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Info Snippets Preview -->
-                <div class="pt-2 text-xs font-['Roboto'] text-[var(--text-muted)] space-y-2 border-t border-[var(--border-color)]/60">
+                <!-- Card Body -->
+                <div class="p-3 flex flex-col justify-between flex-1 gap-1.5 bg-[var(--bg-card)]">
                     <div>
-                        <div class="flex items-center justify-between">
-                            <span>Plataformas:</span>
-                            <strong class="text-[var(--text-main)]">{{ count($selected_platforms) }}</strong>
-                        </div>
-                        @if (count($selected_platforms) > 0)
-                        <div class="flex flex-wrap gap-1.5 pt-1 pb-0.5">
-                            @foreach ($availablePlatforms->whereIn('id', $selected_platforms) as $selectedPlat)
-                            @php $platCol = $selectedPlat->brand_colors; @endphp
-                            <span
-                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-sm)] text-[10px] font-semibold font-['Open_Sans'] border shadow-xs"
-                                style="background-color: {{ $platCol['bg'] }}; color: {{ $platCol['text'] }}; border-color: {{ $platCol['border'] }};">
-                                <span class="w-1.5 h-1.5 rounded-full" style="background-color: {{ $platCol['text'] }}; opacity: 0.85;"></span>
-                                <span>{{ $selectedPlat->name }}</span>
-                            </span>
-                            @endforeach
-                        </div>
-                        @endif
+                        <h3 class="font-bold text-xs sm:text-sm text-[var(--text-main)] font-['Ubuntu'] leading-snug line-clamp-1">
+                            {{ $title !== '' ? $title : 'Título do Jogo' }}
+                        </h3>
+                        <p class="text-[11px] text-[var(--text-muted)] font-['Roboto'] line-clamp-1 mt-0.5">
+                            {{ $developer !== '' ? $developer : 'Desenvolvedora' }}
+                        </p>
                     </div>
 
-                    <div>
-                        <div class="flex items-center justify-between">
-                            <span>Bibliotecas:</span>
-                            <strong class="text-[var(--text-main)]">{{ count($selected_libraries) }}</strong>
-                        </div>
-                        @if (count($selected_libraries) > 0)
-                        <div class="flex flex-wrap gap-1.5 pt-1 pb-0.5">
-                            @foreach ($availableLibraries->whereIn('id', $selected_libraries) as $selectedLib)
-                            @php $previewLibCol = $selectedLib->brand_colors; @endphp
-                            <span
-                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-sm)] text-[10px] font-semibold font-['Open_Sans'] border shadow-xs"
-                                style="background-color: {{ $previewLibCol['bg'] }}; color: {{ $previewLibCol['text'] }}; border-color: {{ $previewLibCol['border'] }};">
-                                <span class="w-1.5 h-1.5 rounded-full" style="background-color: {{ $previewLibCol['text'] }}; opacity: 0.85;"></span>
-                                <span>{{ $selectedLib->name }}</span>
-                            </span>
-                            @endforeach
-                        </div>
-                        @endif
-                    </div>
+                    <!-- Card Footer -->
+                    <div class="flex items-center justify-between gap-1 pt-2 border-t border-[var(--border-color)]/60 text-xs">
+                        <x-game.star-rating :rating="$rating ?? 0.0" size="sm" :showNumber="true" />
 
-                    <div>
-                        <div class="flex items-center justify-between">
-                            <span>Gêneros:</span>
-                            <strong class="text-[var(--text-main)]">{{ count($selected_genres) }}</strong>
-                        </div>
-                        @if (count($selected_genres) > 0)
-                        <div class="flex flex-wrap gap-1.5 pt-1 pb-0.5">
-                            @foreach ($selected_genres as $selectedGenre)
-                            <span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-sm)] text-[10px] font-semibold font-['Open_Sans'] bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-color)] shadow-2xs">
-                                {{ $selectedGenre }}
-                            </span>
-                            @endforeach
-                        </div>
+                        @if ((float) $hours_played > 0)
+                        <span class="text-[10px] font-medium text-[var(--text-muted)] font-['Roboto'] flex items-center gap-0.5">
+                            <svg class="w-3 h-3 text-[var(--brand-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            {{ number_format((float) $hours_played, 1) }}h
+                        </span>
                         @endif
                     </div>
                 </div>
             </div>
         </div>
-    </form>
+
+        <!-- Info Snippets Preview -->
+        <div class="pt-2 text-xs font-['Roboto'] text-[var(--text-muted)] space-y-2 border-t border-[var(--border-color)]/60">
+            <div>
+                <div class="flex items-center justify-between">
+                    <span>Plataformas:</span>
+                    <strong class="text-[var(--text-main)]">{{ count($selected_platforms) }}</strong>
+                </div>
+                @if (count($selected_platforms) > 0)
+                <div class="flex flex-wrap gap-1.5 pt-1 pb-0.5">
+                    @foreach ($availablePlatforms->whereIn('id', $selected_platforms) as $selectedPlat)
+                    @php $platCol = $selectedPlat->brand_colors; @endphp
+                    <span
+                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-sm)] text-[10px] font-semibold font-['Open_Sans'] border shadow-xs"
+                        style="background-color: {{ $platCol['bg'] }}; color: {{ $platCol['text'] }}; border-color: {{ $platCol['border'] }};">
+                        <span class="w-1.5 h-1.5 rounded-full" style="background-color: {{ $platCol['text'] }}; opacity: 0.85;"></span>
+                        <span>{{ $selectedPlat->name }}</span>
+                    </span>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between">
+                    <span>Bibliotecas:</span>
+                    <strong class="text-[var(--text-main)]">{{ count($selected_libraries) }}</strong>
+                </div>
+                @if (count($selected_libraries) > 0)
+                <div class="flex flex-wrap gap-1.5 pt-1 pb-0.5">
+                    @foreach ($availableLibraries->whereIn('id', $selected_libraries) as $selectedLib)
+                    @php $previewLibCol = $selectedLib->brand_colors; @endphp
+                    <span
+                        class="inline-flex items-center gap-1 px-2 py-0.5 rounded-[var(--radius-sm)] text-[10px] font-semibold font-['Open_Sans'] border shadow-xs"
+                        style="background-color: {{ $previewLibCol['bg'] }}; color: {{ $previewLibCol['text'] }}; border-color: {{ $previewLibCol['border'] }};">
+                        <span class="w-1.5 h-1.5 rounded-full" style="background-color: {{ $previewLibCol['text'] }}; opacity: 0.85;"></span>
+                        <span>{{ $selectedLib->name }}</span>
+                    </span>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+
+            <div>
+                <div class="flex items-center justify-between">
+                    <span>Gêneros:</span>
+                    <strong class="text-[var(--text-main)]">{{ count($selected_genres) }}</strong>
+                </div>
+                @if (count($selected_genres) > 0)
+                <div class="flex flex-wrap gap-1.5 pt-1 pb-0.5">
+                    @foreach ($selected_genres as $selectedGenre)
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-[var(--radius-sm)] text-[10px] font-semibold font-['Open_Sans'] bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-color)] shadow-2xs">
+                        {{ $selectedGenre }}
+                    </span>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+</form>
 </div>

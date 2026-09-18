@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\AgeRating;
 use App\Models\Game;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -36,7 +37,7 @@ class GameFactory extends Factory
             'trailer_url' => 'https://www.youtube.com/watch?v=NXTlh31ZWZ4',
             'is_franchise' => false,
             'franchise_name' => null,
-            'age_rating' => '18+',
+            'age_rating' => AgeRating::Age18,
             'purchase_links' => [
                 'steam' => 'https://store.steampowered.com/app/3240220/Grand_Theft_Auto_V_Enhanced/',
                 'epic' => 'https://store.epicgames.com/p/grand-theft-auto-v',

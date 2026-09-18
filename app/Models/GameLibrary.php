@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\SystemLibrary;
 use Database\Factories\GameLibraryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -23,6 +24,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read array{bg: string, text: string, border: string} $brand_colors
+ * @property-read SystemLibrary|null $system_library
  */
 #[Fillable(['name', 'slug', 'icon', 'is_custom', 'user_id'])]
 class GameLibrary extends Model
@@ -53,41 +55,26 @@ class GameLibrary extends Model
     }
 
     /**
+     * Enum da biblioteca digital padrão do sistema, se aplicável
+     *
+     * @return Attribute<SystemLibrary|null, never>
+     */
+    protected function systemLibrary(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): ?SystemLibrary => SystemLibrary::tryFromSlugOrName($this->name, $this->slug),
+        );
+    }
+
+    /**
      * Resolve as cores oficiais da biblioteca digital a partir do nome ou slug
      *
      * @return array{bg: string, text: string, border: string}
      */
     public static function resolveColors(string $name, string $slug): array
     {
-        $slugLower = strtolower($slug);
-        $nameLower = strtolower($name);
-
-        if (str_contains($slugLower, 'steam') || str_contains($nameLower, 'steam')) {
-            return ['bg' => '#1D2C4B', 'text' => '#ffffff', 'border' => '#2A3F6D'];
-        }
-        if (str_contains($slugLower, 'epic') || str_contains($nameLower, 'epic')) {
-            return ['bg' => '#000000', 'text' => '#ffffff', 'border' => '#333333'];
-        }
-        if (str_contains($slugLower, 'luna') || str_contains($nameLower, 'luna') || str_contains($slugLower, 'amazon') || str_contains($nameLower, 'amazon')) {
-            return ['bg' => '#8E45F7', 'text' => '#ffffff', 'border' => '#A368F8'];
-        }
-        if (str_contains($slugLower, 'ea') || str_contains($nameLower, 'ea')) {
-            return ['bg' => '#FF4747', 'text' => '#ffffff', 'border' => '#FF6B6B'];
-        }
-        if (str_contains($slugLower, 'gog') || str_contains($nameLower, 'gog')) {
-            return ['bg' => '#981EEA', 'text' => '#ffffff', 'border' => '#B047F0'];
-        }
-        if (str_contains($slugLower, 'rockstar') || str_contains($nameLower, 'rockstar')) {
-            return ['bg' => '#F7A600', 'text' => '#000000', 'border' => '#FFB81A'];
-        }
-        if (str_contains($slugLower, 'ubisoft') || str_contains($nameLower, 'ubisoft')) {
-            return ['bg' => '#3B4984', 'text' => '#ffffff', 'border' => '#4E5FA8'];
-        }
-        if (str_contains($slugLower, 'xbox') || str_contains($nameLower, 'xbox')) {
-            return ['bg' => '#107C0F', 'text' => '#ffffff', 'border' => '#189A17'];
-        }
-
-        return ['bg' => 'var(--bg-main)', 'text' => 'var(--text-main)', 'border' => 'var(--border-color)'];
+        return SystemLibrary::tryFromSlugOrName($name, $slug)?->brandColors()
+            ?? ['bg' => 'var(--bg-main)', 'text' => 'var(--text-main)', 'border' => 'var(--border-color)'];
     }
 
     /**
