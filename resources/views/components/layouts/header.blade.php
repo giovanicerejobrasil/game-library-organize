@@ -80,7 +80,7 @@ $iconIcoUrl = asset('images/logo/icon.ico') . '?v=' . (@filemtime(public_path('i
                             Minha Biblioteca
                         </a>
                         <a href="{{ route('games.create') }}" class="flex items-center gap-2 px-3.5 py-2 text-[var(--text-main)] hover:bg-[var(--border-color)]/30 transition-colors">
-                            <svg class="w-4 h-4 text-[var(--brand-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-4 h-4 text-[var(--text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
                             Adicionar Jogo
