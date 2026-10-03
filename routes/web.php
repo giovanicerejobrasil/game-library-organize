@@ -8,6 +8,7 @@ use App\Http\Controllers\SignUp;
 use App\Livewire\AddGame;
 use App\Livewire\Dashboard;
 use App\Livewire\GameDetail;
+use App\Livewire\Settings;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
@@ -18,6 +19,7 @@ Route::post('/attemptsignup', [SignUp::class, 'attemptSignUp'])->name('attemptSi
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
+    Route::get('/configuracoes', Settings::class)->name('settings');
     Route::get('/jogos/adicionar', AddGame::class)->name('games.create');
     Route::get('/jogos/{game}/editar', AddGame::class)->name('games.edit');
     Route::get('/jogos/{game}', GameDetail::class)->name('games.show');
