@@ -15,20 +15,30 @@ test('guest users are redirected to login when accessing settings', function () 
     $response->assertRedirect(route('login'));
 });
 
-test('authenticated users can access the settings page', function () {
+test('authenticated regular users can access the settings page', function () {
     $user = User::factory()->create();
 
     $response = $this->actingAs($user)->get(route('settings'));
 
     $response->assertOk();
-    $response->assertSeeLivewire(Settings::class);
     $response->assertSee('Configurações do Usuário');
     $response->assertSee('Informações da Conta');
     $response->assertSee('Cores do Sistema');
+    $response->assertSee('Métricas do Catálogo');
+    $response->assertDontSee('Informações do Sistema');
+});
+
+test('authenticated admin users see Informações do Sistema in settings page', function () {
+    $admin = User::factory()->admin()->create();
+
+    $response = $this->actingAs($admin)->get(route('settings'));
+
+    $response->assertOk();
+    $response->assertSee('Configurações do Usuário');
     $response->assertSee('Informações do Sistema');
 });
 
-test('user can switch tabs between account, colors, and system', function () {
+test('regular user switches tabs and sees catalog metrics instead of infrastructure diagnosis', function () {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
@@ -41,8 +51,22 @@ test('user can switch tabs between account, colors, and system', function () {
         ->assertSee('Paletas Pré-definidas')
         ->call('setTab', 'system')
         ->assertSet('tab', 'system')
+        ->assertSee('Métricas do Catálogo')
+        ->assertDontSee('Diagnóstico da Infraestrutura')
+        ->assertDontSee('Banco de Dados Relacional');
+});
+
+test('admin user switches to system tab and sees infrastructure diagnosis and stack', function () {
+    $admin = User::factory()->admin()->create();
+
+    Livewire::actingAs($admin)
+        ->test(Settings::class)
+        ->set('tab', 'system')
+        ->assertSet('tab', 'system')
         ->assertSee('Diagnóstico da Infraestrutura')
-        ->assertSee('Banco de Dados Relacional');
+        ->assertSee('Banco de Dados Relacional')
+        ->assertSee('Ambiente da Aplicação')
+        ->assertSee('Métricas Globais do Catálogo');
 });
 
 test('user can update profile name and email', function () {
@@ -169,17 +193,48 @@ test('user can apply color presets and reset to default system colors', function
         ->and($user->brand_secondary)->toBe(SettingsService::DEFAULT_BRAND_SECONDARY);
 });
 
-test('system diagnostics tab retrieves valid database and stack metrics', function () {
-    $user = User::factory()->create();
+test('system diagnostics tab retrieves valid database and stack metrics for admin', function () {
+    $admin = User::factory()->admin()->create();
 
-    $test = Livewire::actingAs($user)
+    Livewire::actingAs($admin)
         ->test(Settings::class)
-        ->set('tab', 'system');
+        ->set('tab', 'system')
+        ->assertSee('Diagnóstico da Infraestrutura')
+        ->assertSee('PHP Version');
 
-    $diagnostics = app(SettingsService::class)->getSystemDiagnostics($user);
+    $diagnostics = app(SettingsService::class)->getSystemDiagnostics($admin);
 
     expect($diagnostics)->toHaveKeys(['database', 'elasticsearch', 'stack', 'metrics'])
         ->and($diagnostics['database']['connected'])->toBeTrue()
         ->and($diagnostics['stack']['php_version'])->toBe(PHP_VERSION)
+        ->and($diagnostics['metrics']['user_library_games'])->toBe(0);
+});
+
+test('system diagnostics tab protects infrastructure and returns null stack for non-admin user', function () {
+    $user = User::factory()->create();
+
+    Livewire::actingAs($user)
+        ->test(Settings::class)
+        ->set('tab', 'system')
+        ->assertSee('Métricas do Catálogo')
+        ->assertDontSee('Diagnóstico da Infraestrutura')
+        ->assertDontSee('PHP Version');
+
+    $diagnostics = app(SettingsService::class)->getSystemDiagnostics($user);
+
+    expect($diagnostics['database'])->toBeNull()
+        ->and($diagnostics['elasticsearch'])->toBeNull()
+        ->and($diagnostics['stack'])->toBeNull()
+        ->and($diagnostics['metrics'])->toHaveKeys([
+            'total_catalog_games',
+            'user_library_games',
+            'total_platforms',
+            'total_libraries',
+            'total_genres',
+            'finished_games',
+            'playing_games',
+            'backlog_games',
+            'dropped_games',
+        ])
         ->and($diagnostics['metrics']['user_library_games'])->toBe(0);
 });

@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Http;
 
 test('game search service handles query searches and returns structured responses', function () {
     Http::fake([
-        'http://127.0.0.1:9200/games/_search' => Http::response([
+        '*games/_search*' => Http::response([
             'hits' => [
                 'total' => ['value' => 1],
                 'hits' => [
@@ -37,7 +37,7 @@ test('game search service handles query searches and returns structured response
 
 test('game search service returns empty structure when elasticsearch is offline', function () {
     Http::fake([
-        'http://127.0.0.1:9200/games/_search' => Http::response(null, 500),
+        '*games/_search*' => Http::response(null, 500),
     ]);
 
     $service = new GameSearchService;
