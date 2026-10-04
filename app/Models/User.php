@@ -25,11 +25,12 @@ use Illuminate\Support\Str;
  * @property ThemeMode|string $theme
  * @property string $brand_primary
  * @property string $brand_secondary
+ * @property bool $is_admin
  * @property string|null $remember_token
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
-#[Fillable(['name', 'email', 'password', 'theme', 'brand_primary', 'brand_secondary'])]
+#[Fillable(['name', 'email', 'password', 'theme', 'brand_primary', 'brand_secondary', 'is_admin'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -47,6 +48,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'theme' => ThemeMode::class,
+            'is_admin' => 'boolean',
         ];
     }
 
@@ -90,6 +92,24 @@ class User extends Authenticatable
     public function customLibraries(): HasMany
     {
         return $this->hasMany(GameLibrary::class);
+    }
+
+    /**
+     * Gêneros personalizados criados pelo usuário
+     *
+     * @return HasMany<Genre, $this>
+     */
+    public function customGenres(): HasMany
+    {
+        return $this->hasMany(Genre::class);
+    }
+
+    /**
+     * Verifica se o usuário possui privilégios de administrador
+     */
+    public function isAdmin(): bool
+    {
+        return (bool) ($this->is_admin ?? false);
     }
 
     /**

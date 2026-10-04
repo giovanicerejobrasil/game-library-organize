@@ -25,10 +25,12 @@ class DatabaseSeeder extends Seeder
                 'theme' => 'dark',
                 'brand_primary' => '#182075',
                 'brand_secondary' => '#751919',
+                'is_admin' => true,
             ]);
         }
 
         $this->call([
+            GenreSeeder::class,
             PlatformSeeder::class,
             GameLibrarySeeder::class,
             GameSeeder::class,

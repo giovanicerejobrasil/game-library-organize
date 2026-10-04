@@ -7,6 +7,7 @@ namespace App\Services\Games;
 use App\Enums\GameStatus;
 use App\Models\Game;
 use App\Models\GameLibrary;
+use App\Models\Genre;
 use App\Models\Platform;
 use App\Models\User;
 use App\Models\UserGame;
@@ -259,8 +260,17 @@ class GameService
      *
      * @return array<int, string>
      */
-    public function getAvailableGenres(): array
+    public function getAvailableGenres(?int $userId = null): array
     {
+        $dbGenres = Genre::where(function ($q) use ($userId) {
+            $q->where('is_custom', false);
+            if ($userId !== null) {
+                $q->orWhere('user_id', $userId);
+            }
+        })
+            ->pluck('name')
+            ->toArray();
+
         $defaultGenres = [
             'Ação',
             'Aventura',
@@ -295,7 +305,7 @@ class GameService
             }
         }
 
-        $all = array_values(array_unique(array_merge($defaultGenres, $existing)));
+        $all = array_values(array_unique(array_merge($defaultGenres, $dbGenres, $existing)));
         sort($all);
 
         return $all;

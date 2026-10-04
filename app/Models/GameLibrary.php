@@ -19,14 +19,16 @@ use Illuminate\Support\Carbon;
  * @property string $name
  * @property string $slug
  * @property string|null $icon
+ * @property string|null $color
  * @property bool $is_custom
  * @property int|null $user_id
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  * @property-read array{bg: string, text: string, border: string} $brand_colors
+ * @property-read string $resolved_color
  * @property-read SystemLibrary|null $system_library
  */
-#[Fillable(['name', 'slug', 'icon', 'is_custom', 'user_id'])]
+#[Fillable(['name', 'slug', 'icon', 'color', 'is_custom', 'user_id'])]
 class GameLibrary extends Model
 {
     /** @use HasFactory<GameLibraryFactory> */
@@ -43,6 +45,17 @@ class GameLibrary extends Model
     }
 
     /**
+     * Retorna a cor resolvida em HEX
+     */
+    protected function resolvedColor(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): string => $this->color
+                ?? (SystemLibrary::tryFromSlugOrName($this->name, $this->slug)?->brandColors()['bg'] ?? '#182075'),
+        );
+    }
+
+    /**
      * Cores oficiais da marca da biblioteca digital
      *
      * @return Attribute<array{bg: string, text: string, border: string}, never>
@@ -50,7 +63,17 @@ class GameLibrary extends Model
     protected function brandColors(): Attribute
     {
         return Attribute::make(
-            get: fn (): array => self::resolveColors($this->name, $this->slug),
+            get: function (): array {
+                if (! empty($this->color)) {
+                    return [
+                        'bg' => $this->color,
+                        'text' => '#ffffff',
+                        'border' => $this->color,
+                    ];
+                }
+
+                return self::resolveColors($this->name, $this->slug);
+            },
         );
     }
 
@@ -75,6 +98,18 @@ class GameLibrary extends Model
     {
         return SystemLibrary::tryFromSlugOrName($name, $slug)?->brandColors()
             ?? ['bg' => 'var(--bg-main)', 'text' => 'var(--text-main)', 'border' => 'var(--border-color)'];
+    }
+
+    /**
+     * Determina se o usuário fornecido possui permissão para editar ou excluir esta biblioteca digital
+     */
+    public function canBeManagedBy(User $user): bool
+    {
+        if (! $this->is_custom || $this->user_id === null) {
+            return $user->isAdmin();
+        }
+
+        return $this->user_id === $user->id;
     }
 
     /**

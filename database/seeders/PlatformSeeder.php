@@ -15,10 +15,10 @@ class PlatformSeeder extends Seeder
     public function run(): void
     {
         $platforms = [
-            ['name' => 'Nintendo Switch', 'slug' => 'nintendo-switch', 'icon' => 'switch'],
-            ['name' => 'Xbox (Microsoft)', 'slug' => 'xbox-microsoft', 'icon' => 'xbox'],
-            ['name' => 'PlayStation (Sony)', 'slug' => 'playstation-sony', 'icon' => 'playstation'],
-            ['name' => 'PC', 'slug' => 'pc', 'icon' => 'pc'],
+            ['name' => 'Nintendo Switch', 'slug' => 'nintendo-switch', 'icon' => 'switch', 'color' => '#E60012'],
+            ['name' => 'Xbox (Microsoft)', 'slug' => 'xbox-microsoft', 'icon' => 'xbox', 'color' => '#107C0F'],
+            ['name' => 'PlayStation (Sony)', 'slug' => 'playstation-sony', 'icon' => 'playstation', 'color' => '#003791'],
+            ['name' => 'PC', 'slug' => 'pc', 'icon' => 'pc', 'color' => '#1D2C4B'],
         ];
 
         foreach ($platforms as $platform) {
@@ -27,6 +27,7 @@ class PlatformSeeder extends Seeder
                 [
                     'name' => $platform['name'],
                     'icon' => $platform['icon'],
+                    'color' => $platform['color'],
                     'is_custom' => false,
                     'user_id' => null,
                 ]
